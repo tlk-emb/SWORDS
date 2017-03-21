@@ -1,0 +1,10 @@
+{
+    "software_tasks": [
+        {"name": "main"},
+        {"name": "matrixmul_soft"}],
+    "hardware_tasks": [{
+        "name": "matrixmul", "mode": "s_axilite", "arguments": [
+            {"name": "a", "mode": "s_axilite",  "bundle": "port_b",  "direction": "in" },
+            {"name": "b", "mode": "s_axilite",  "bundle": "port_b",  "direction": "in" },
+            {"name": "c", "mode": "s_axilite",  "bundle": "port_b",  "direction": "out" }
+]}]}
