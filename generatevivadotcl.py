@@ -144,7 +144,6 @@ class generateVivadoTcl:
         vivado_tcl += "connect_bd_net [get_bd_pins %s_0/interrupt] [get_bd_pins processing_system7_0/IRQ_F2P]\n" % (self.func_name)
 
         for m_axi_bundle in self.m_axi_bundles: #ACPを使うならアドレスエディタをいじる必要がある
-            print m_axi_bundle
             if m_axi_bundle[1] == "ACP":
                 vivado_tcl += "include_bd_addr_seg [get_bd_addr_segs -excluded %s_0/Data_m_axi_%s/SEG_processing_system7_0_ACP_IOP]\n" % (self.func_name, m_axi_bundle[0])
                 vivado_tcl += "include_bd_addr_seg [get_bd_addr_segs -excluded %s_0/Data_m_axi_%s/SEG_processing_system7_0_ACP_M_AXI_GP0]\n" % (self.func_name, m_axi_bundle[0])
