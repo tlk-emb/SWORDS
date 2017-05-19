@@ -7,10 +7,10 @@ SET cfile=..\%~1
 SET jsonfile=..\%~2
 SET projectname=%~3
 
-mkdir %projectname%
-cd %projectname%
-
 if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
+  mkdir %projectname%
+  cd %projectname%
+
   if not {%llvmfilepath%} == {""} (
     %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath% %llvmfilepath%
   ) else (
@@ -22,9 +22,10 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
   %toolchainpath%\batch\runhls.bat %cfile:~3,-2%_hw_re.c %jsonfile% %projectname% %toolchainpath%
   %toolchainpath%\batch\runvivado.bat %jsonfile% %projectname% %projectname%_hls %cd% %toolchainpath%
   %toolchainpath%\batch\runsdk.bat %cfile% %jsonfile% %projectname% %toolchainpath%
+  
+  cd ..\
  
 ) else (
     echo "few arguments!"
 )
 
-cd ..
