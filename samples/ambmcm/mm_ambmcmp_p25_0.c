@@ -1,5 +1,4 @@
 #define PROJECT "mm_ambmcmp_p25_0"
-#include "string.h"
 #define P 32
 
 int matrixmul_soft(int a[P][P], int b[P][P], int c[P][P]){
