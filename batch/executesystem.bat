@@ -10,7 +10,7 @@ SET toolchainpath=%~dp0
 
 if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
     
-  python %toolchainpath%\generateexecutesdktcl.py %cfile% %jsonfile% %projectname%
+  python %toolchainpath%\python\generateexecutesdktcl.py %cfile% %jsonfile% %projectname%
   %sdkpath%\xsdk.bat -batch -source %projectname%_config_sdk.tcl
   %sdkpath%\xsdk.bat -batch -source %projectname%_execute_sdk.tcl
 

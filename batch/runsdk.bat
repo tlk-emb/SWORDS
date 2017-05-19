@@ -16,10 +16,10 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
   mkdir software
   copy %ciffile% software
   copy %cswfile% software\helloworld.c
-  copy %toolchainpath%\lscript.ld software
-  copy %toolchainpath%\timer.c software
-  copy %toolchainpath%\timer.h software
-  python %toolchainpath%\generatesdktcl.py %cfilepath% %jsonfilepath% %projectname%
+  copy %toolchainpath%\utils\lscript.ld software
+  copy %toolchainpath%\utils\timer.c software
+  copy %toolchainpath%\utils\timer.h software
+  python %toolchainpath%\python\generatesdktcl.py %cfile% %jsonfile% %projectname%
   %sdkpath%\xsdk.bat -batch -source %projectname%_build_sdk.tcl
 
 ) else (
