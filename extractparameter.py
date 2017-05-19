@@ -6,7 +6,7 @@ import clang.cindex
 from clang.cindex import Config 
 import json
 import re
-import commands
+import subprocess
 
 class ExtractParameter: #抽出/使用するパラメータの定義
     def __init__(self, hw_file_name, json_file_name, llvm_libdir, llvm_libfile):
@@ -117,7 +117,8 @@ class ExtractParameter: #抽出/使用するパラメータの定義
 
         func_decl_pattern = "(.+)" + self.func_name + "(.*)\(((.*) (.*))*\)"
 
-        hw_source = commands.getoutput('gcc -E ' + self.hw_file_name) #マクロ展開で定数などを数字に置換しておく
+        #hw_source = commands.getoutput('\"C:\Program Files (x86)\LLVM\bin\clang -E ' + self.hw_file_name) #マクロ展開で定数などを数字に置換しておく
+        hw_source = subprocess.check_output('clang -E ' + self.hw_file_name) #マクロ展開で定数などを数字に置換しておく
 
         for line in reversed(hw_source.splitlines()): #関数定義の行を抜き出す 現状の仕様は1行で関数定義が書いていないといけない プロトタイプ宣言も引数名が書いてないとだめ
             if (re.match(func_decl_pattern,line)):
