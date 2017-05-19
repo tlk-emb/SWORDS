@@ -5,8 +5,8 @@ SET sdkpath=%xilinxpath%\SDK\2015.4\bin
 SET cfile=%~1
 SET jsonfile=%~2
 SET projectname=%~3
-SET cswfile=%cfile:~0,-2%_sw.c
-SET ciffile=%cfile:~0,-2%_if.c
+SET cswfile=%cfile:~3,-2%_sw.c
+SET ciffile=%cfile:~3,-2%_if.c
 
 SET toolchainpath=%~4
 
