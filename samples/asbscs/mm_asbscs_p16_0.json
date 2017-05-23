@@ -9,7 +9,7 @@
             {"name": "c", "mode": "s_axilite",  "bundle": "port_b",  "direction": "out" }
         ],
         "bundles": [
-            {"bundle": "port_a", "port": "ACP" }
+            {"bundle": "port_b", "port": "ACP" }
         ]
     }]
 }
