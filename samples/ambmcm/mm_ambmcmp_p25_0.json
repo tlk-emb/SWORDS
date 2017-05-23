@@ -7,4 +7,9 @@
             {"name": "a", "mode": "m_axi", "bundle": "port_a", "offset": "slave", "direction": "in" },
             {"name": "b", "mode": "m_axi", "bundle": "port_a", "offset": "slave", "direction": "in" },
             {"name": "c", "mode": "m_axi", "bundle": "port_a", "offset": "slave", "direction": "out" }
-]}]}
+        ],
+        "bundles": [
+            {"bundle": "port_a", "port": "ACP" }
+        ]
+    }]
+}
