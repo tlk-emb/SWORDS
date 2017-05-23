@@ -12,4 +12,5 @@
             {"bundle": "bundle_a", "port": "ACP" },
             {"bundle": "bundle_b", "port": "GP0" }
         ]
-}]}
+    }]
+}
