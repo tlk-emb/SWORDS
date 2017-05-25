@@ -17,7 +17,7 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
     %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath%
   )
 
-  mv ..\%projectname%_* .
+  move ..\%projectname%_* .
 
   %toolchainpath%\batch\runhls.bat %cfile:~3,-2%_hw_re.c %jsonfile% %projectname% %toolchainpath%
   %toolchainpath%\batch\runvivado.bat %jsonfile% %projectname% %projectname%_hls %cd%\%projectname% %toolchainpath%
