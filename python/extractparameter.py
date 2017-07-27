@@ -49,7 +49,7 @@ class ExtractParameter: #抽出/使用するパラメータの定義
         #関数名の成形
         self.func_name_u = self.func_name.upper()
         self.func_name_l = self.func_name.lower()
-        self.func_name_ul = (self.func_name[0]).upper() + self.func_name[1:]
+        self.func_name_ul = (self.func_name[0]).upper() + (self.func_name[1:]).lower()
 
     def __analyzeJson(self): #jsonファイルの解析
 

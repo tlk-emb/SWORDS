@@ -79,7 +79,7 @@ class generateIF:
     def __generateGlobalvals(self):
         global_vals = ""
 
-        global_vals += "volatile int %s_done = 0;\n" % (self.EP.func_name)
+        global_vals += "volatile int %s_done = 0;\n" % (self.EP.func_name_l)
         global_vals += "unsigned int *baseaddr = XPAR_%s_0_S_AXI_AXILITES_BASEADDR;\n\n" % (self.EP.func_name_u)
 
         global_vals += "static int used = 0;\n"
