@@ -4,7 +4,7 @@ SET vivadopath=%xilinxpath%\Vivado\2015.4\bin
 
 SET jsonfile=%~1
 SET projectname=%~2
-SET hlsippath=%~3
+SET hlsippath=%cd%\%~3
 SET projectpath=%~4
 
 SET vivadodir=%projectname%_vivado
