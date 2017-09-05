@@ -110,6 +110,8 @@ class generateVivadoTcl:
 
         vivado_tcl += "open_bd_design {%s/%s_vivado/%s.srcs/sources_1/bd/%s_system/%s_system.bd}\n" % (self.project_path, self.project_name, self.project_name, self.func_name, self.func_name)
 
+        vivado_tcl += "update_ip_catalog\n"
+
         vivado_tcl += "startgroup\n"
         vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0\n"
         vivado_tcl += "endgroup\n"
