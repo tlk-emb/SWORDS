@@ -228,7 +228,7 @@ class generateIF:
         for i in range(0,len(self.EP.parm_decls)):
             if self.EP.parm_interfaces[i] == "s_axilite":
                 if self.EP.parm_directions[i] == "in":
-                    if self.EP.parm_data_numbers[i] == 1: # スカラーの場合
+                    if self.EP.parm_data_numbers[i] == 0: # スカラーの場合
                         parms_set_str += "  X%s_Set_%s(&%sx, %s);\n" % (self.EP.func_name_ul, self.EP.parm_decls[i], self.EP.func_name_l, self.EP.parm_decls[i])
                     else: # スカラーじゃない場合
                         parms_set_str += "  X%s_Write_%s_Words(&%sx, 0, %s, sizeof(%s) * %s / 4);\n" % (self.EP.func_name_ul, self.EP.parm_decls[i], self.EP.func_name_l, self.EP.parm_decls[i], self.EP.parm_decls[i], self.EP.parm_data_numbers[i])
@@ -272,7 +272,7 @@ class generateIF:
         for i in range(0,len(self.EP.parm_decls)):
             if self.EP.parm_interfaces[i] == "s_axilite":
                 if self.EP.parm_directions[i] == "out":
-                    if self.EP.parm_data_numbers[i] == 1: # スカラーの場合
+                    if self.EP.parm_data_numbers[i] == 0: # スカラーの場合
                         parms_get_str += "  %s = X%s_Get_%s(&%sx);\n" % (self.EP.parm_decls[i], self.EP.func_name_ul, self.EP.parm_decls[i], self.EP.func_name_l)
                     else: # スカラーじゃない場合
                         parms_get_str += "  X%s_Read_%s_Words(&%sx, 0, %s, sizeof(%s) * %s / 4);\n" % (self.EP.func_name_ul, self.EP.parm_decls[i], self.EP.func_name_l, self.EP.parm_decls[i], self.EP.parm_decls[i], self.EP.parm_data_numbers[i])

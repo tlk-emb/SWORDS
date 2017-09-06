@@ -146,7 +146,7 @@ class ExtractParameter: #抽出/使用するパラメータの定義
                     data_number = data_number * int(eval(i))
                 self.parm_data_numbers.append(data_number)
             else:
-                self.parm_data_numbers.append(1)
+                self.parm_data_numbers.append(0)
                 self.parm_suffixs.append([])
 
         for i in range(0,len(self.parm_decls)):
