@@ -101,13 +101,26 @@ class generateVivadoTcl:
                     self.use_m_axi_ports.append(port)
         '''
 
+        # ボードの指定
+        if "environments" in json_file:
+            self.board_name = str(json_file["environments"][0]["board"])
+        else:
+            self.board_name = "zedboard"
+
     def generateVivadoTcl(self):
 
         vivado_tcl = ""
-
-        vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z020clg484-1\n" % (self.project_name, self.project_path, self.project_name)
-
-        vivado_tcl += "set_property board_part em.avnet.com:zed:part0:1.3 [current_project]\n"
+   
+        # ボード指定によるプロジェクト属性の設定
+        if self.board_name == "zedboard":
+            vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z020clg484-1\n" % (self.project_name, self.project_path, self.project_name)
+            vivado_tcl += "set_property board_part em.avnet.com:zed:part0:1.3 [current_project]\n"
+        elif self.board_name == "zc702":
+            vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z020clg484-1\n" % (self.project_name, self.project_path, self.project_name)
+            vivado_tcl += "set_property board_part xilinx.com:zc702:part0:1.2 [current_project]\n"
+        #else:
+        #    vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z020clg484-1\n" % (self.project_name, self.project_path, self.project_name)
+        #    vivado_tcl += "set_property board_part em.avnet.com:zed:part0:1.3 [current_project]\n"
 
         vivado_tcl += "set_property  ip_repo_paths  %s [current_project]\n" % (self.hls_ip_path)
 

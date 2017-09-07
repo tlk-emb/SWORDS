@@ -42,7 +42,13 @@ SCHEMA = {
                 }
             },
             "required": ["name", "mode", "arguments"]
-        }
+        },
+        "environments": {
+            "type": "object",
+            "properties": {
+                "board": {"type": "string"}
+            },
+        },
     },
     "type": "object",
     "properties": {
@@ -53,6 +59,10 @@ SCHEMA = {
         "hardware_tasks": {
             "type": "array",
             "items": {"$ref": "#/definitions/hardware_task"}
+        },
+        "environments": {
+            "type": "array",
+            "items": {"$ref": "#/definitions/environments"}
         }
     },
     "required": ["software_tasks", "hardware_tasks"]
