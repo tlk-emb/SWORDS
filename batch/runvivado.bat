@@ -1,6 +1,6 @@
 @echo off
 
-SET vivadopath=%xilinxpath%\Vivado\2015.4\bin
+SET vivadopath=%xilinxpath%\Vivado\%xilinxversion%\bin
 
 SET jsonfile=%~1
 SET projectname=%~2

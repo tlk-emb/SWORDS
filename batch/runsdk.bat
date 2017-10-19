@@ -1,6 +1,6 @@
 @echo off
 
-SET sdkpath=%xilinxpath%\SDK\2015.4\bin
+SET sdkpath=%xilinxpath%\SDK\%xilinxversion%\bin
 
 SET cfile=%~1
 SET jsonfile=%~2
