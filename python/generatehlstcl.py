@@ -64,8 +64,8 @@ def generatehlstcl(cfile_path, project_name, toplevel_function_name, board_name)
         tclfile_content += "set_part {xc7z020clg484-1}\n"
     elif board_name == "zc702":
         tclfile_content += "set_part {xc7z020clg484-1}\n"
-    #elif board_name == "zybo":
-    #    tclfile_content += "set_part {xc7z010clg400-1}\n"
+    elif board_name == "zybo":
+        tclfile_content += "set_part {xc7z010clg400-1}\n"
     #else:
     #    tclfile_content += "set_part {xc7z020clg484-1}\n"
     tclfile_content += "create_clock -period 10 -name default\n"
