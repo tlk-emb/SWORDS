@@ -1,0 +1,18 @@
+{
+    "software_tasks": [
+        {"name": "main"},
+        {"name": "arrayadd_soft"}],
+    "hardware_tasks": [{
+        "name": "arrayadd", "arguments": [
+            {"name": "a", "mode": "axis", "bundle": "bundle_a", "direction": "in" },
+            {"name": "b", "mode": "axis", "bundle": "bundle_b", "direction": "out" }
+        ],
+        "bundles": [
+            {"bundle": "bundle_a", "port": "HP0" },
+            {"bundle": "bundle_b", "port": "HP0" }
+        ]
+    }],
+    "environments": [{
+        "board": "zc702"
+    }]
+}
