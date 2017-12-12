@@ -41,7 +41,7 @@ SCHEMA = {
                     "items": {"$ref": "#/definitions/hardware_task_argument"}
                 }
             },
-            "required": ["name", "mode", "arguments"]
+            "required": ["name", "arguments"]
         },
         "environments": {
             "type": "object",
@@ -89,7 +89,7 @@ class HardwareTask(Task):
     @staticmethod
     def parse_config(node):
         name = node["name"]
-        mode = node["mode"]
+        mode = node.get("mode")
         arguments = [HardwareTaskArgument.parse_config(n)
                      for n in node["arguments"]]
 
@@ -97,9 +97,12 @@ class HardwareTask(Task):
 
     def get_directive_pragmas(self):
         template = "#pragma HLS INTERFACE {mode} port=return"
-        pragma = template.format(mode=self.mode)
         pragmas = [a.get_directive_pragma() for a in self.arguments]
-        return [pragma] + pragmas
+        if self.mode is None:
+            return pragmas
+        else:
+            pragma = template.format(mode=self.mode)
+            return [pragma] + pragmas
 
 
 class HardwareTaskArgument(object):
