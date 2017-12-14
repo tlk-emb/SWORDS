@@ -8,7 +8,7 @@ SET hwfile=%cfile:~0,-2%_hw.c
 
 if not {%~4} == {} (
   python %toolchainpath%\python\divide.py %cfile% %jsonfile% --llvm-libfile %llvmpath%
-  python %toolchainpath%\python\renamehwparams.py %cfile% %jsonfile% --llvm-libfile %llvmpath%
+  python %toolchainpath%\python\renamehwparams.py %hwfile% %jsonfile% --llvm-libfile %llvmpath%
   python %toolchainpath%\python\ifmake.py %cfile% %jsonfile% --llvm-libfile %llvmpath%
 ) else (
   python %toolchainpath%\python\divide.py %cfile% %jsonfile%
