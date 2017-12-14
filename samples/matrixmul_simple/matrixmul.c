@@ -54,7 +54,7 @@ int main()
     	}
     }
     
-    //Xil_DCacheDisable();
+    Xil_DCacheDisable();
 
     matrixmul(a,b,d);
     
