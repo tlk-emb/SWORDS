@@ -72,7 +72,7 @@ def generateexetcl(cfile_apth, project_name, toplevel_function_name):
     tclfile_content += "source %s_vivado/%s.sdk/%s_hw_platform_0/ps7_init.tcl\n" % (project_name, project_name, system_wrapper)
     tclfile_content += "ps7_init\n"
     tclfile_content += "ps7_post_config\n"
-    tclfile_content += "dow %s_vivado/%s.sdk/%s/Release/%s.elf\n" % (project_name, project_name, project_name, project_name)
+    tclfile_content += "dow %s_vivado/%s.sdk/%s/Debug/%s.elf\n" % (project_name, project_name, project_name, project_name)
     tclfile_content += "con\n"
     tclfile_content += "exit\n"
 
