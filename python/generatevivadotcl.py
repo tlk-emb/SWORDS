@@ -54,6 +54,7 @@ class generateVivadoTcl:
         self.project_name = project_name
         self.json_file_path = json_file_path
         self.hls_ip_path = hls_ip_path.replace("\\","/")
+        self.lib_path = os.path.realpath(os.path.dirname(os.path.abspath(__file__))+"/../utils/lib").replace("\\","/")
 
         self.__analyzeJson()
 
@@ -125,7 +126,7 @@ class generateVivadoTcl:
         #    vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z020clg484-1\n" % (self.project_name, self.project_path, self.project_name)
         #    vivado_tcl += "set_property board_part em.avnet.com:zed:part0:1.3 [current_project]\n"
 
-        vivado_tcl += "set_property  ip_repo_paths  %s [current_project]\n" % (self.hls_ip_path)
+        vivado_tcl += "set_property  ip_repo_paths  {%s %s} [current_project]\n" % (self.hls_ip_path, self.lib_path)
 
         vivado_tcl += "create_bd_design \"%s_system\"\n" % (self.func_name)
 
@@ -192,6 +193,7 @@ class generateVivadoTcl:
             for axis_bundle in self.axis_bundles:
                 vivado_tcl += "startgroup\n"
                 # 使用するポートを有効にしてbundleと接続する
+     
                 vivado_tcl += "set_property -dict [list CONFIG.PCW_USE_S_AXI_%s {1}] [get_bd_cells processing_system7_0]\n" % (axis_bundle[1])
                 # 2つめ以降のStreamポートの情報をあつめる
                 Conn_strs = ""
@@ -210,11 +212,40 @@ class generateVivadoTcl:
             #DMAの割り込みを割り込みピンのリストに追加
             interrupt_pins.append(dma_name + "/mm2s_introut")
             interrupt_pins.append(dma_name + "/s2mm_introut")
+            constant_num = 0
+            #HWコアの出力ピンとDMAの間にtlastをおく
+            for i,axis_bundle in enumerate(self.axis_bundles):
+                #出力でなければスルー
+                if axis_bundle[2] == "in": continue
+                #tlast_genをおく
+                tlast_gen_name = "tlast_gen_" + str(i)
+                vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:user:tlast_gen:1.0 %s\n" % tlast_gen_name
+                #新しいDMAとHWコアが接続されているネットリストに含まれるピンのリストを取得
+                vivado_tcl += "set pins [get_bd_intf_pins -of_objects [ get_bd_intf_nets -of_objects  [get_bd_intf_pins %s_0/%s]]]\n" %  (self.func_name, axis_bundle[0])
+                #DMAとHWコアの出力ピンの接続を削除
+                vivado_tcl += "delete_bd_objs [ get_bd_intf_nets -of_objects  [get_bd_intf_pins %s_0/%s]]\n" % (self.func_name, axis_bundle[0])
+                #DMAとtlast_gen/maxisを接続
+                vivado_tcl += "foreach elem $pins {if {[string equal [get_property MODE $elem] \"Slave\"] == 1 } {connect_bd_intf_net $elem [get_bd_intf_pins %s/m_axis]}}\n" % tlast_gen_name
+                #HWコアとtlast_gen/saxisを接続
+                vivado_tcl += "foreach elem $pins {if {[string equal [get_property MODE $elem] \"Master\"] == 1 } {connect_bd_intf_net $elem [get_bd_intf_pins %s/s_axis]}}\n" % tlast_gen_name
+                #tlast_genのクロックとリセット信号を接続
+                vivado_tcl += "connect_bd_net [get_bd_pins %s/aclk] [get_bd_pins %s_0/ap_clk]\n" % (tlast_gen_name, self.func_name)
+                vivado_tcl += "connect_bd_net [get_bd_pins %s/resetn] [get_bd_pins %s_0/ap_rst_n]\n" % (tlast_gen_name, self.func_name)
+                #tlast_genのデータ幅を設定
+                packet_len = 50
+                data_width = 32
+                vivado_tcl += "set_property -dict [list CONFIG.TDATA_WIDTH {%s}] [get_bd_cells %s]\n" % (data_width, tlast_gen_name)
+                #tlast_genのtlastをたてるまでのパケット数（出力の配列数）を定数値で設定
+                constant_num += 1
+                vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_%s\n"% constant_num
+                vivado_tcl += "set_property -dict [list CONFIG.CONST_WIDTH {9} CONFIG.CONST_VAL {%s}] [get_bd_cells xlconstant_%s]\n" % (packet_len, constant_num)
+                vivado_tcl += "connect_bd_net [get_bd_pins %s/pkt_length] [get_bd_pins xlconstant_%s/dout]\n" % (tlast_gen_name, constant_num)
             #HWコアのap_startに定数1をセット
+            constant_num += 1
             vivado_tcl += "startgroup\n"
-            vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0\n"
+            vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_%s\n" % constant_num
             vivado_tcl += "endgroup\n"
-            vivado_tcl += "connect_bd_net [get_bd_pins %s_0/ap_start] [get_bd_pins xlconstant_0/dout]\n" % self.func_name
+            vivado_tcl += "connect_bd_net [get_bd_pins %s_0/ap_start] [get_bd_pins xlconstant_%s/dout]\n" % (self.func_name, constant_num)
 
         #割り込みピンをconcatを用いて連結してからzynqの割り込み検知コアに接続
         if len(self.axis_bundles) == 0:
