@@ -118,6 +118,9 @@ class generateVivadoTcl:
         elif self.board_name == "zc702":
             vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z020clg484-1\n" % (self.project_name, self.project_path, self.project_name)
             vivado_tcl += "set_property board_part xilinx.com:zc702:part0:1.2 [current_project]\n"
+        elif self.board_name == "zc706":
+            vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z045ffg900-2\n" % (self.project_name, self.project_path, self.project_name)
+            vivado_tcl += "set_property board_part xilinx.com:zc706:part0:1.2 [current_project]\n"
         elif self.board_name == "zybo":
             vivado_tcl += "create_project -force %s %s/%s_vivado -part xc7z010clg400-1\n" % (self.project_name, self.project_path, self.project_name)
             vivado_tcl += "set_property board_part digilentinc.com:zybo:part0:1.0 [current_project]\n"
