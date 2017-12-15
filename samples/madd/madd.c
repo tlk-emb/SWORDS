@@ -1,4 +1,4 @@
-#define P 32
+#define P 64
 
 int mul(int x[P], int y[P], int z[P]){
   int i;
@@ -69,10 +69,8 @@ int main()
   XTime_GetTime(&tEnd2);
 
   for (i=0; i<P; i++){
-    if (c[i] != d[i]) {
-      printf("c[%d] = %d\t",i,c[i]);
-      printf("d[%d] = %d\n",i,d[i]);
-    }
+    printf("hw[%d] = %d\t",i,c[i]);
+    printf("sw[%d] = %d\n",i,d[i]);
   }
 
   printf("hard interr time: %llu\n",2*(tEnd1-tStart1));
