@@ -1,6 +1,6 @@
 @echo off
 
-SET vivadopath=%xilinxpath%\Vivado_HLS\2015.4\bin
+SET vivadopath=%xilinxpath%\Vivado_HLS\%xilinxversion%\bin
 
 SET cfile=%~1
 SET jsonfile=%~2

@@ -1,6 +1,6 @@
 @echo off
 
-SET sdkpath=%xilinxpath%\SDK\2015.4\bin
+SET sdkpath=%xilinxpath%\SDK\%xilinxversion%\bin
 
 SET cfile=%~1
 SET jsonfile=%~2
@@ -17,8 +17,8 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
   copy %ciffile% software
   copy %cswfile% software\helloworld.c
   copy %toolchainpath%\utils\lscript.ld software
-  copy %toolchainpath%\utils\timer.c software
-  copy %toolchainpath%\utils\timer.h software
+  rem copy %toolchainpath%\utils\timer.c software
+  rem copy %toolchainpath%\utils\timer.h software
   python %toolchainpath%\python\generatesdktcl.py %cfile% %jsonfile% %projectname%
   %sdkpath%\xsdk.bat -batch -source %projectname%_build_sdk.tcl
 

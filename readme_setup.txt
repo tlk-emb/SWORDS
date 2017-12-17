@@ -1,4 +1,4 @@
-SWORDSフレームワーク　環境構築
+﻿SWORDSフレームワーク　環境構築
 
 ・利用ツールとバージョン
 
@@ -80,4 +80,15 @@ setenv.bat にて各種の設定を行う必要がある．
 2行目はLLVMのインストール時に環境変数を指定していれば不要であるが，
 必要に応じて使用すること．
 
+・ボードの追加方法
+1.ボードファイルをXilinx\Vivado\2015.4(使用するvivadoのバージョン)\data\boards\board_files
+に追加
+（Arty, BASYS3, GENESYS2, NEXYS_VIDEO, NEXYS4, NEXYS4_DDR, ZYBOは以下からダウンロード可
+https://github.com/Digilent/vivado-boards/archive/master.zip ）
 
+2.vivadoを起動し、tclコンソールでget_board_partsを打ち込むとボード一覧が出るため、追加するボードに対応しているものを確認(例 digilentinc.com:zybo:part0:1.0
+)
+
+3.python/generatehlstcl.py 60行付近のelif board_name == "(ボードの名前)"～～の部分を書き足す。
+
+4.python/generatevivadotcl.pyに追加120行付近のelif self.board_name == "(ボードの名前)"～～の部分を書き足す

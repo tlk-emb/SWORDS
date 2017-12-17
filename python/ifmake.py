@@ -26,9 +26,10 @@ def main():
 
     logging.basicConfig(level=getattr(logging, args.logging.upper()))
 
-    hw_file_name = args.c_file
+    c_file_name = args.c_file
+    hw_file_name = c_file_name[0:len(c_file_name)-2] + "_hw.c"
     json_file_name = args.conf_file
-    hw_iffile_name = hw_file_name[0:len(hw_file_name)-2] + "_if.c"
+    hw_iffile_name = c_file_name[0:len(c_file_name)-2] + "_if.c"
 
     logging.debug("input C source file: %s", hw_file_name)
     logging.debug("input config file: %s", json_file_name)

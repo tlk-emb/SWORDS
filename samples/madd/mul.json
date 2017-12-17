@@ -1,0 +1,20 @@
+{
+    "software_tasks": [
+        {"name": "main"},
+        {"name": "add"},
+        {"name": "madd_soft"}
+    ],
+    "hardware_tasks": [{
+        "name": "mul", "mode": "s_axilite", "arguments": [
+            {"name": "x", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in" },
+            {"name": "y", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in" },
+            {"name": "z", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "out" }
+        ],
+        "bundles": [
+            {"bundle": "bundle_a", "port": "GP0" }
+        ]
+    }],
+    "environments": [{
+        "board": "zc702"
+    }]
+}
