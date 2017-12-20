@@ -46,7 +46,9 @@ SCHEMA = {
         "environments": {
             "type": "object",
             "properties": {
-                "board": {"type": "string"}
+                "vendor": {"type": "string"},
+                "board": {"type": "string"},
+                "ostype": {"type": "string"}
             },
         },
     },
@@ -61,7 +63,7 @@ SCHEMA = {
             "items": {"$ref": "#/definitions/hardware_task"}
         },
         "environments": {
-            "type": "array",
+            "type": "object",
             "items": {"$ref": "#/definitions/environments"}
         }
     },

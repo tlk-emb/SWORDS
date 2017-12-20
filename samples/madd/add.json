@@ -13,7 +13,7 @@
             {"bundle": "bundle_a", "port": "GP0" }
         ]
     }],
-    "environments": [{
+    "environments": {
         "board": "zc702"
-    }]
+    }
 }

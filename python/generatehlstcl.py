@@ -45,10 +45,10 @@ def extractBoardName(json_file_path):
 
     json_file = json.loads(f.read())
 
+    board_name = "zedboard"
     if "environments" in json_file:
-        board_name = str(json_file["environments"][0]["board"])
-    else:
-        board_name = "zedboard"
+        if "board" in json_file["environments"]:
+           board_name = str(json_file["environments"]["board"])
 
     return board_name
 

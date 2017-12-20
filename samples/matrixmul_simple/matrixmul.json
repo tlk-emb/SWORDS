@@ -13,7 +13,8 @@
             {"bundle": "bundle_b", "port": "GP0" }
         ]
     }],
-    "environments": [{
+    "environments": {
+        "vendor": "xilinx",
         "board": "zc702"
-    }]
+    }
 }
