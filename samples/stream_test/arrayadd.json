@@ -13,6 +13,6 @@
         ]
     }],
     "environments": [{
-        "board": "zc702"
+        "board": "zybo"
     }]
 }
