@@ -77,7 +77,7 @@ class generateVivadoTcl:
 
         for bundles_dic in bundles_dic_list:
             bundles_pair_dic[str(bundles_dic["bundle"])] = str(bundles_dic["port"])
-        print(parameters_list)
+
         for parameter in parameters_list:
             if (str(parameter["mode"])) == "s_axilite":
                 if [str(parameter["bundle"]) , str(bundles_pair_dic[parameter["bundle"]])] not in self.s_axilite_bundles:
@@ -94,7 +94,7 @@ class generateVivadoTcl:
                         self.m_axi_bundles.append([str(parameter["bundle"]), "ACP"])
 
             elif (str(parameter["mode"])) == "axis":
-                if str(parameter["bundle"]) not in self.axis_bundles:
+                if [str(parameter["bundle"]), str(bundles_pair_dic[parameter["bundle"]]), str(parameter["direction"])] not in self.axis_bundles:
                     self.axis_bundles.append([str(parameter["bundle"]), str(bundles_pair_dic[parameter["bundle"]]), str(parameter["direction"])])
 
         '''
