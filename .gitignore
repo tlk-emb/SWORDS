@@ -1,3 +1,16 @@
 *.pyc
 *.swp
 .DS_Store
+#Ignore sample output files except C source code and JSON file.
+samples/matrixmul_simple/*
+!samples/matrixmul_simple/matrixmul.c
+!samples/matrixmul_simple/matrixmul.json
+samples/ambmcm/*
+!samples/ambmcm/mm_ambmcmp_p25_0.c
+!samples/ambmcm/mm_ambmcmp_p25_0.json
+samples/asbscs/*
+!samples/asbscs/mm_asbscs_p16_0.c
+!samples/asbscs/mm_asbscs_p16_0.json
+samples/stream_test/*
+!samples/stream_test/arrayadd.c
+!samples/stream_test/arrayadd.json
