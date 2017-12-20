@@ -102,10 +102,10 @@ class generateVivadoTcl:
         '''
 
         # ボードの指定
+        self.board_name = "zedboard"
         if "environments" in json_file:
-            self.board_name = str(json_file["environments"][0]["board"])
-        else:
-            self.board_name = "zedboard"
+            if "board" in json_file["environments"]:
+                self.board_name = str(json_file["environments"]["board"])
 
     def generateVivadoTcl(self):
 
