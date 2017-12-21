@@ -68,7 +68,6 @@ class generateVivadoTcl:
         i = 0
         self.func_name = str(json_file["hardware_tasks"][i]["name"])
         self.use_hw_interrupt_port = json_file["hardware_tasks"][i].get("mode") is not None
- 
         parameters_list = json_file["hardware_tasks"][i]["arguments"]
 
         bundles_dic_list = json_file["hardware_tasks"][i]["bundles"]
@@ -199,7 +198,7 @@ class generateVivadoTcl:
             for axis_bundle in self.axis_bundles:
                 vivado_tcl += "startgroup\n"
                 # 使用するポートを有効にしてbundleと接続する
-     
+
                 vivado_tcl += "set_property -dict [list CONFIG.PCW_USE_S_AXI_%s {1}] [get_bd_cells processing_system7_0]\n" % (axis_bundle[1])
                 # 2つめ以降のStreamポートの情報をあつめる
                 Conn_strs = ""
@@ -253,18 +252,24 @@ class generateVivadoTcl:
             vivado_tcl += "endgroup\n"
             vivado_tcl += "connect_bd_net [get_bd_pins %s_0/ap_start] [get_bd_pins xlconstant_%s/dout]\n" % (self.func_name, constant_num)
 
-        #割り込みピンをconcatを用いて連結してからzynqの割り込み検知コアに接続
-        if len(self.axis_bundles) == 0:
+        #割り込みピンがある場合zynqの割り込み検知ピンに接続
+        print(interrupt_pins)
+        if len(interrupt_pins) == 0:
             pass
         else:
-            vivado_tcl += "startgroup\n"
             vivado_tcl += "set_property -dict [list CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells processing_system7_0]\n"
-            vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0\n"
-            vivado_tcl += "set_property -dict [list CONFIG.NUM_PORTS {%s}] [get_bd_cells xlconcat_0]\n" % len(interrupt_pins)
-            vivado_tcl += "endgroup\n"
-            for i, interrupt_pin in enumerate(interrupt_pins):
-                vivado_tcl += "connect_bd_net [get_bd_pins %s] [get_bd_pins xlconcat_0/In%s]\n" % (interrupt_pin, i)
-            vivado_tcl += "connect_bd_net [get_bd_pins xlconcat_0/dout] [get_bd_pins processing_system7_0/IRQ_F2P]\n"
+            if len(interrupt_pins) == 1:
+                #1つの場合は直接接続する
+                vivado_tcl += "connect_bd_net [get_bd_pins %s] [get_bd_pins processing_system7_0/IRQ_F2P]\n" % interrupt_pins[0]
+            else:
+                #2つ以上ある場合はconcatを用いて連結する必要がある
+                vivado_tcl += "startgroup\n"
+                vivado_tcl += "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0\n"
+                vivado_tcl += "set_property -dict [list CONFIG.NUM_PORTS {%s}] [get_bd_cells xlconcat_0]\n" % len(interrupt_pins)
+                vivado_tcl += "endgroup\n"
+                for i, interrupt_pin in enumerate(interrupt_pins):
+                    vivado_tcl += "connect_bd_net [get_bd_pins %s] [get_bd_pins xlconcat_0/In%s]\n" % (interrupt_pin, i)
+                vivado_tcl += "connect_bd_net [get_bd_pins xlconcat_0/dout] [get_bd_pins processing_system7_0/IRQ_F2P]\n"
 
         vivado_tcl += "make_wrapper -files [get_files %s/%s_vivado/%s.srcs/sources_1/bd/%s_system/%s_system.bd] -top\n" % (self.project_path, self.project_name, self.project_name, self.func_name, self.func_name)
 
