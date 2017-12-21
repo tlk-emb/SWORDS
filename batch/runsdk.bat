@@ -17,8 +17,6 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
   copy %ciffile% software
   copy %cswfile% software\helloworld.c
   copy %toolchainpath%\utils\lscript.ld software
-  rem copy %toolchainpath%\utils\timer.c software
-  rem copy %toolchainpath%\utils\timer.h software
   python %toolchainpath%\python\generatesdktcl.py %cfile% %jsonfile% %projectname% %toolchainpath%
   %sdkpath%\xsdk.bat -batch -source %projectname%_build_sdk.tcl
 
