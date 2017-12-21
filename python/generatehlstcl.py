@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# python dump_tree.py test.m
 
 import sys
 import argparse
-import json
+
+from extractjsonparam import ExtractJsonParameter
 
 args = sys.argv
 
@@ -22,37 +21,25 @@ def main():
     json_file_path = args.json_file_path
     project_name = args.project_name
 
+    EJP = ExtractJsonParameter(json_file_path)
+    func_name = EJP.Func_Name()
+    vendor_name = EJP.Vendor_Name()
+    board_name = EJP.Board_Name()
+
     tclfile_name = project_name + "_hls.tcl"
 
     tclfile = open(tclfile_name,"w")
 
     tclfile.write(generatehlstcl(cfile_path, project_name, extractFuncName(json_file_path), extractBoardName(json_file_path)))
 
-def extractFuncName(json_file_path):
 
-    f = open(json_file_path,'r')
+def generatehlstcl(cfile_path, project_name, function_name, vendor_name, board_name):
+    env = Environment(loader=FileSystemLoader(toolchain_path+'template\\'+vendor_name+'\\'))
+    template = env.get_template(mode+'_sdk.tcl')
 
-    json_file = json.loads(f.read())
+    data = {'projname': project_name, 'funcname': function_name}
+    return template.render(data)
 
-    #とりあえず1つ目のHW
-    func_name = str(json_file["hardware_tasks"][0]["name"])
-
-    return func_name
-
-def extractBoardName(json_file_path):
-
-    f = open(json_file_path,'r')
-
-    json_file = json.loads(f.read())
-
-    board_name = "zedboard"
-    if "environments" in json_file:
-        if "board" in json_file["environments"]:
-           board_name = str(json_file["environments"]["board"])
-
-    return board_name
-
-def generatehlstcl(cfile_path, project_name, toplevel_function_name, board_name):
 
     tclfile_content = ""
 
