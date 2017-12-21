@@ -12,6 +12,7 @@ Xilinxツール：
 Pythonパッケージソフトウェア：
 　jsonschema 2.5.1以上（2.5.1, 2.6.0で動作確認済み）
 　clang 3.4以上（3.4, 3.8.1, 4.0.0で動作確認済み）
+　jinja2 2.10（2.10でのみ動作確認済み）
 
 
 ・動作要件
@@ -56,6 +57,7 @@ cmd.exe (Windowsコマンドプロンプト)上から以下を実行して
 必要なライブラリをインストールする．
 
 $ pip install jsonschema
+$ pip install jinja2
 $ pip install clang
 
 2.でインストールしたのが最新版で無ければ，

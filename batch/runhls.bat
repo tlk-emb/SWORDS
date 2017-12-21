@@ -15,7 +15,7 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
 
   mkdir %hlsipdir%
   copy %cfile% %hlsipdir%
-  python %toolchainpath%\python\generatehlstcl.py %cfile% %jsonfile% %projectname%
+  python %toolchainpath%\python\generatehlstcl.py %cfile% %jsonfile% %projectname% %toolchainpath%
 
   copy %tclfile% %hlsipdir%
   %vivadopath%\vivado_hls -f %hlsipdir%/%tclfile%
