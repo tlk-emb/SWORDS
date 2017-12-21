@@ -97,21 +97,21 @@ class generateIF:
     def __generateConfigs(self):
 
         configs = ""
-        # 使用用途不明の為コメントアウト
-        # configs += "static X%s %sx = {\n" % (self.EP.func_name_ul, self.EP.func_name_l)
-        # configs += "    XPAR_%s_0_S_AXI_AXILITES_BASEADDR,\n" % (self.EP.func_name_u)
-        # for bundle in self.EP.parm_slave_bundles_noduplication:
-        #     configs += "    XPAR_%s_0_S_AXI_%s_BASEADDR,\n" % (self.EP.func_name_u, bundle.upper())
-        # configs += "    1\n" #この辺Liteの状況に合わせて増やす必要がある portが増えるとダメになるよ
-        # configs += "};\n\n"
+        if "axis" not in self.EP.parm_interfaces:
+            configs += "static X%s %sx = {\n" % (self.EP.func_name_ul, self.EP.func_name_l)
+            configs += "    XPAR_%s_0_S_AXI_AXILITES_BASEADDR,\n" % (self.EP.func_name_u)
+            for bundle in self.EP.parm_slave_bundles_noduplication:
+                configs += "    XPAR_%s_0_S_AXI_%s_BASEADDR,\n" % (self.EP.func_name_u, bundle.upper())
+            configs += "    1\n" #この辺Liteの状況に合わせて増やす必要がある portが増えるとダメになるよ
+            configs += "};\n\n"
 
-        # configs += "static X%s_Config %sc = {\n" % (self.EP.func_name_ul, self.EP.func_name_l)
-        # configs += "    1,\n"
-        # configs += "    XPAR_%s_0_S_AXI_AXILITES_BASEADDR" % (self.EP.func_name_u)
-        # for bundle in self.EP.parm_slave_bundles_noduplication:
-        #     configs += ",\n    XPAR_%s_0_S_AXI_%s_BASEADDR" % (self.EP.func_name_u, bundle.upper())
-        # configs += "\n"
-        # configs += "};\n\n"
+            configs += "static X%s_Config %sc = {\n" % (self.EP.func_name_ul, self.EP.func_name_l)
+            configs += "    1,\n"
+            configs += "    XPAR_%s_0_S_AXI_AXILITES_BASEADDR" % (self.EP.func_name_u)
+            for bundle in self.EP.parm_slave_bundles_noduplication:
+                configs += ",\n    XPAR_%s_0_S_AXI_%s_BASEADDR" % (self.EP.func_name_u, bundle.upper())
+            configs += "\n"
+            configs += "};\n\n"
 
         return configs
 
