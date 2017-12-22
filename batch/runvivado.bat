@@ -6,11 +6,10 @@ SET jsonfile=%~1
 SET projectname=%~2
 SET hlsippath=%cd%\%~3
 SET projectpath=%~4
+SET toolchainpath=%~5
 
 SET vivadodir=%projectname%_vivado
 SET tclfile=%projectname%_vivado.tcl
-
-SET toolchainpath=%~5
 
 if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
 
@@ -23,3 +22,5 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
 
   echo "few arguments!"
 )
+
+exit /b 0

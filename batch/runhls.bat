@@ -21,5 +21,7 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
   %vivadopath%\vivado_hls -f %hlsipdir%/%tclfile%
 
 ) else (
-    echo "few arguments!"
+  echo "few arguments!"
 )
+
+exit /b 0

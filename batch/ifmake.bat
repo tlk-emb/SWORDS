@@ -15,3 +15,5 @@ if not {%~4} == {} (
   python %toolchainpath%\python\renamehwparams.py %hwfile% %jsonfile%
   python %toolchainpath%\python\ifmake.py %cfile% %jsonfile%
 )
+
+exit /b 0

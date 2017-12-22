@@ -7,7 +7,6 @@ SET jsonfile=%~2
 SET projectname=%~3
 SET cswfile=%cfile:~3,-2%_sw.c
 SET ciffile=%cfile:~3,-2%_if.c
-
 SET toolchainpath=%~4
 
 
@@ -21,5 +20,7 @@ if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
   %sdkpath%\xsdk.bat -batch -source %projectname%_build_sdk.tcl
 
 ) else (
-    echo "few arguments!"
+  echo "few arguments!"
 )
+
+exit /b 0
