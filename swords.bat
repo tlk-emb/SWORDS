@@ -3,7 +3,7 @@
 if "%~3" == "" (
   echo few arguments!
   echo Usage:
-  echo   ^$ swords.bat ^<design^>.c ^<conf^>.json ^<proj_name^> [^<exec_mode^>]
+  echo   ^$ swords.bat ^<design^>.c ^<conf^>.json ^<proj_name^> [^<operation_mode^>]
   exit /b 1
 )
 
@@ -13,7 +13,7 @@ call %toolchainpath%\setenv.bat
 if not "%~4" == "" (
   set opmode=%~4
 ) else (
-  echo Info: [^<exec_mode^>] can select {all,divide,ifmake,hls,hwsyn,swbuild}
+  echo Info: [^<operation_mode^>] can select {all,ifmake,hls,hwsyn,swbuild}
   set opmode=all
 )
 echo Operation mode is set to %opmode%
@@ -27,11 +27,11 @@ mkdir %projectname%
 cd %projectname%
 
 
-set divide=False
-if "%opmode%" == "all" set divide=True
-if "%opmode%" == "divide" set divide=True
+set ifmake=False
+if "%opmode%" == "all" set ifmake=True
+if "%opmode%" == "ifmake" set ifmake=True
 
-if "%divide%" == "True" (
+if "%ifmake%" == "True" (
   if not "%llvmfilepath%" == "" (
     call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath% %llvmfilepath%
   ) else (
