@@ -49,7 +49,9 @@ if not exist "%jsonfile%" (
   exit /b 1
 )
 
-mkdir %projectname%
+if not exist "%projectname%" (
+  mkdir %projectname%
+)
 cd %projectname%
 
 
@@ -91,7 +93,7 @@ if "%opmode%" == "hls" set hls=True
 
 set cfile=%~1
 if "%hls%" == "True" (
-  set hwcfile=%cfile:~0,-2%_hw_re.c
+  set hwcfile=%cfile:~0,-2%_hwif.c
   if not exist "%hwcfile%" (
     echo Error: hls process cannot be operated because ifmake has not been done.
     cd ..\
