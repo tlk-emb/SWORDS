@@ -28,7 +28,6 @@ def main():
     config = TasksConfig.parse_config(json_file_name)
     if config is None:
         return 1
-
     function_name = config.hw_funcname(config)
     vendor_name = config.vendorname(config)
     board_name = config.boardname(config)
