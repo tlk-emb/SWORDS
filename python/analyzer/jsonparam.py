@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 import logging
 
@@ -75,12 +77,10 @@ class Task(object):
     def __init__(self, name):
         self.name = name
 
-
 class SoftwareTask(Task):
     @staticmethod
     def parse_config(node):
         return SoftwareTask(node["name"])
-
 
 class HardwareTask(Task):
     def __init__(self, name, mode, arguments):
@@ -105,7 +105,6 @@ class HardwareTask(Task):
         else:
             pragma = template.format(mode=self.mode)
             return [pragma] + pragmas
-
 
 class HardwareTaskArgument(object):
     def __init__(self, name, mode, offset=None, bundle=None):
@@ -134,9 +133,33 @@ class HardwareTaskArgument(object):
 
 
 class TasksConfig(object):
-    def __init__(self, hardware_tasks, software_tasks):
+    def __init__(self, hardware_tasks, software_tasks, environments):
         self.hardware_tasks = hardware_tasks
         self.software_tasks = software_tasks
+        self.environments = environments
+
+    def hw_funcname(self, config):
+        # TODO: Currently we support only 1 HWtask
+        functions = config.hardware_tasks.keys()
+        if len(functions):
+            return str(functions[0])
+        else:
+            return None
+
+    def vendorname(self, config):
+        vendor_name = "xilinx"
+        if "vendor" in config.environments:
+            return config.environments["vendor"]
+        else:
+            return vendor_name
+
+    def boardname(self, config):
+        board_name = "zedboard"
+        if "board" in config.environments:
+            return config.environments["board"]
+        else:
+            return board_name
+
 
     @staticmethod
     def parse_config(filename):
@@ -150,6 +173,7 @@ class TasksConfig(object):
 
         hw_tasks = {}
         sw_tasks = {}
+        environments = {}
 
         for node in root["hardware_tasks"]:
             task = HardwareTask.parse_config(node)
@@ -159,4 +183,6 @@ class TasksConfig(object):
             task = SoftwareTask.parse_config(node)
             sw_tasks[task.name] = task
 
-        return TasksConfig(hw_tasks, sw_tasks)
+        environments.update(root["environments"])
+
+        return TasksConfig(hw_tasks, sw_tasks, environments)
