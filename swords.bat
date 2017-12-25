@@ -13,31 +13,75 @@ call %toolchainpath%\setenv.bat
 if not "%~4" == "" (
   set opmode=%~4
 ) else (
-  echo Info: [^<operation_mode^>] can select {all,ifmake,hls,hwsyn,swbuild}
+  echo Info: [^<operation_mode^>] can select {all,divide,ifmake,hls,hwsyn,swbuild}
   set opmode=all
 )
-echo Operation mode is set to %opmode%
+
+if not "%opmode%" == "all" (
+  if not "%opmode%" == "divide" (
+    if not "%opmode%" == "ifmake" (
+      if not "%opmode%" == "hls" (
+        if not "%opmode%" == "hwsyn" (
+          if not "%opmode%" == "swbuild" (
+            echo Error: [^<operation_mode^>] cannot be selected as %opmode%.
+            exit /b 1
+          )
+        )
+      )
+    )
+  )
+)
+
+echo Operation mode is set to %opmode%.
 
 
-set cfile=..\%~1
-set jsonfile=..\%~2
+set cfile=%~1
+set jsonfile=%~2
 set projectname=%~3
   
+if not exist "%cfile%" (
+  echo Error: %cfile% does not exist
+  exit /b 1
+)
+
+if not exist "%jsonfile%" (
+  echo Error: %jsonfile% does not exist
+  exit /b 1
+)
+
 mkdir %projectname%
 cd %projectname%
 
+
+set divide=False
+if "%opmode%" == "all" set divide=True
+if "%opmode%" == "divide" set divide=True
+
+if "%divide%" == "True" (
+  copy /Y ..\%cfile% .
+  copy /Y ..\%jsonfile% .
+  if not "%llvmfilepath%" == "" (
+    call %toolchainpath%\batch\divide.bat %cfile% %jsonfile% %llvmfilepath%
+  ) else (
+    call %toolchainpath%\batch\divide.bat %cfile% %jsonfile%
+  )
+)
 
 set ifmake=False
 if "%opmode%" == "all" set ifmake=True
 if "%opmode%" == "ifmake" set ifmake=True
 
 if "%ifmake%" == "True" (
+  if not exist "%cfile:~0,-2%_sw.c" (
+    echo Error: ifmake process cannot be operated because divide has not been done.
+    cd ..\
+    exit /b 1
+  )
   if not "%llvmfilepath%" == "" (
     call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath% %llvmfilepath%
   ) else (
     call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath%
   )
-  move /Y %cfile:~0,-2%_*.c .
 )
 
 
@@ -45,10 +89,11 @@ set hls=False
 if "%opmode%" == "all" set hls=True
 if "%opmode%" == "hls" set hls=True
 
+set cfile=%~1
 if "%hls%" == "True" (
-  set hwcfile=%cfile:~3,-2%_hw_re.c
+  set hwcfile=%cfile:~0,-2%_hw_re.c
   if not exist "%hwcfile%" (
-    echo Error: hls process cannot be operated because %hwcfile% does not exist.
+    echo Error: hls process cannot be operated because ifmake has not been done.
     cd ..\
     exit /b 1
   )
@@ -74,7 +119,7 @@ set build=False
 if "%opmode%" == "all" set build=True
 if "%opmode%" == "swbuild" set build=True
 
-set cfile=..\%~1
+set cfile=%~1
 if "%build%" == "True" (
   if not exist "%projectname%_vivado\%projectname%.runs" (
     echo Error: swbuild process cannot be operated because hwsyn has not been done.
