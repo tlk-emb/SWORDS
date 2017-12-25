@@ -4,7 +4,7 @@ import sys
 import argparse
 from jinja2 import Template,Environment,FileSystemLoader
 
-from extractjsonparam import ExtractJsonParameter
+from analyzer.jsonparam import TasksConfig
 
 args = sys.argv
 
@@ -12,21 +12,25 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("cfile_path")
-    parser.add_argument("json_file_path")
+    parser.add_argument("cfile_name")
+    parser.add_argument("json_file_name")
     parser.add_argument("project_name")
     parser.add_argument("toolchain_path")
 
     args = parser.parse_args()
 
-    cfile_path = args.cfile_path
-    json_file_path = args.json_file_path
+    cfile_name = args.cfile_name
+    json_file_name = args.json_file_name
     project_name = args.project_name
     toolchain_path = args.toolchain_path
 
-    EJP = ExtractJsonParameter(json_file_path)
-    function_name = EJP.Func_Name()
-    vendor_name = EJP.Vendor_Name()
+    # JSONÇ©ÇÁê›íËÇì«Ç›çûÇ›
+    config = TasksConfig.parse_config(json_file_name)
+    if config is None:
+        return 1
+    function_name = config.hw_funcname(config)
+    vendor_name = config.vendorname(config)
+
 
     build_tclfile_name = project_name + "_build_sdk.tcl"
     build_tclfile = open(build_tclfile_name,"w")
