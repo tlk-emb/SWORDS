@@ -13,7 +13,7 @@ SET tclfile=%projectname%_vivado.tcl
 
 if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
 
-  python %toolchainpath%\python\generatevivadotcl.py %jsonfile% %projectname% %projectpath% %hlsippath%
+  python %toolchainpath%\python\generatevivadotcl.py %jsonfile% %projectname% %projectpath% %hlsippath% %toolchainpath%
   mkdir %vivadodir%
   copy %tclfile% %vivadodir%
   %vivadopath%\vivado -mode batch -source %vivadodir%/%tclfile%

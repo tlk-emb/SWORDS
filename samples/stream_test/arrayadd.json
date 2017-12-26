@@ -12,7 +12,8 @@
             {"bundle": "bundle_b", "port": "HP0" }
         ]
     }],
-    "environments": [{
-        "board": "zybo"
-    }]
+    "environments": {
+        "vendor": "xilinx",
+        "board": "zedboard"
+    }
 }
