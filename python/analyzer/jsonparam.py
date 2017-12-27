@@ -26,9 +26,11 @@ SCHEMA = {
                     "enum": ["axis", "m_axi", "s_axilite"]
                 },
                 "offset": {"type": "string"},
-                "bundle": {"type": "string"}
+                "bundle": {"type": "string"},
+                "direction": {"type": "string"},
+                "size": {"type": "string"}
             },
-            "required": ["name", "mode"]
+            "required": ["name", "mode", "size"]
         },
         "hardware_task": {
             "type": "object",
@@ -97,21 +99,16 @@ class HardwareTask(Task):
 
         return HardwareTask(name, mode, arguments)
 
-    def get_directive_pragmas(self):
-        template = "#pragma HLS INTERFACE {mode} port=return"
-        pragmas = [a.get_directive_pragma() for a in self.arguments]
-        if self.mode is None:
-            return pragmas
-        else:
-            pragma = template.format(mode=self.mode)
-            return [pragma] + pragmas
 
 class HardwareTaskArgument(object):
-    def __init__(self, name, mode, offset=None, bundle=None):
+    def __init__(self, name, mode, offset=None, bundle=None,
+            direction=None, size=None):
         self.name = name
         self.mode = mode
         self.offset = offset
         self.bundle = bundle
+        self.direction = direction
+        self.size = size
 
     @staticmethod
     def parse_config(node):
@@ -119,17 +116,9 @@ class HardwareTaskArgument(object):
         mode = node["mode"]
         offset = node.get("offset")
         bundle = node.get("bundle")
-        return HardwareTaskArgument(name, mode, offset, bundle)
-
-    def get_directive_pragma(self):
-        template = "#pragma HLS INTERFACE {mode} port={name}"
-        if self.offset is not None:
-            template += " offset={offset}"
-        if self.bundle is not None:
-            template += " bundle={bundle}"
-
-        return template.format(name=self.name, mode=self.mode,
-                               offset=self.offset, bundle=self.bundle)
+        direction = node.get("direction")
+        size = node.get("size")
+        return HardwareTaskArgument(name, mode, offset, bundle, direction, size)
 
 
 class TasksConfig(object):
