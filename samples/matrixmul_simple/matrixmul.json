@@ -4,9 +4,9 @@
         {"name": "matrixmul_soft"}],
     "hardware_tasks": [{
         "name": "matrixmul", "mode": "s_axilite", "arguments": [
-            {"name": "a", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in" },
-            {"name": "b", "mode": "s_axilite", "bundle": "bundle_b", "direction": "in" },
-            {"name": "c", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "out" }
+            {"name": "a", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "size": "1024" },
+            {"name": "b", "mode": "s_axilite", "bundle": "bundle_b", "direction": "in", "size": "1024" },
+            {"name": "m", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "out", "size": "1024" }
         ],
         "bundles": [
             {"bundle": "bundle_a", "port": "ACP" },

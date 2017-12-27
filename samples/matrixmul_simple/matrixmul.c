@@ -15,7 +15,9 @@ int matrixmul_soft(int a[P][P], int b[P][P], int c[P][P]){
   return 0;
 
 }
-int matrixmul(int a[P][P], int b[P][P], int c[P][P]){
+int matrixmul(int a[P][P],
+    int b[P][P],
+    int m[P][P]){
   int i,j,k;
   for (i = 0; i < P; i++){
     for (j = 0; j < P; j++){
