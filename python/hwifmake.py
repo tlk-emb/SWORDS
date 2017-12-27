@@ -6,8 +6,9 @@ import commands
 import argparse
 import logging
 
+from jinja2 import Template,Environment,FileSystemLoader
+
 from analyzer.jsonparam import TasksConfig
-from extractparameter import ExtractParameter
 
 args = sys.argv
 
@@ -16,6 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("c_file")
     parser.add_argument("conf_file")
+    parser.add_argument("toolchain_path")
     parser.add_argument("--llvm-libdir", default=None, required=False)
     parser.add_argument("--llvm-libfile", default=None, required=False)
     parser.add_argument(
@@ -29,171 +31,153 @@ def main():
 
     hw_file_name = args.c_file
     json_file_name = args.conf_file
-    rename_hw_file_name = hw_file_name[0:len(hw_file_name)-2] + "if.c"
+    toolchain_path = args.toolchain_path
+    hwif_file_name = hw_file_name[0:len(hw_file_name)-2] + "if.c"
 
     logging.debug("input C source file: %s", hw_file_name)
     logging.debug("input config file: %s", json_file_name)
-    logging.debug("output renamed C source file: %s", rename_hw_file_name)
-
-    llvm_libdir = None
-    llvm_libfile = None
-
-    if args.llvm_libdir != None:
-        llvm_libdir = args.llvm_libdir
-
-    if args.llvm_libfile != None:
-        llvm_libfile = args.llvm_libfile
+    logging.debug("output renamed C source file: %s", hwif_file_name)
 
     # JSONから設定を読み込み
     config = TasksConfig.parse_config(json_file_name)
     if config is None:
         return 1
 
-    initial = set(config.hardware_tasks.keys())
-    for name in initial:
-        task = config.hardware_tasks[name]
-        args_pragma = task.get_directive_pragmas()
-        print task.get_directive_pragmas()
+    hwif = Hwif_Generate(hw_file_name,config,toolchain_path)
+    hwif_file = hwif.generate()
+
+    hwif_source = open(hwif_file_name,"w")
+    hwif_source.write(hwif_file)
+    hwif_source.close()
 
 
-    rmp = RenameandMemcpyPlus(hw_file_name,json_file_name,llvm_libdir,llvm_libfile, args_pragma)
-
-    renamed_hw_file = rmp.renamandmemcpyplus()
-
-    hw_source = open(rename_hw_file_name,"w")
-
-    hw_source.write(renamed_hw_file)
-
-    hw_source.close()
-
-class RenameandMemcpyPlus:
-    def __init__(self,hw_file_name,json_file_name,llvm_libdir,llvm_libfile, args_pragma):
-
+class Hwif_Generate:
+    def __init__(self, hw_file_name, config, toolchain_path):
         self.hw_file_name = hw_file_name
+        self.toolchain_path = toolchain_path
+        self.hw_funcname = config.hw_funcname(config)
+        
+        task = config.hardware_tasks[self.hw_funcname]
+        self.json_args = task.arguments
 
-        #ExtractParameterで抽出
-        self.EP = ExtractParameter(hw_file_name, json_file_name,llvm_libdir,llvm_libfile)
+        self.vendorname = config.vendorname(config)
 
-        #ソース分割されたものたち
-        self.before_func_decl = ""
-        self.func_decl_line = ""
-        self.pragmas_lines = ""
-        for arg in args_pragma:
-            self.pragmas_lines += arg
-            self.pragmas_lines += "\n"
-        self.return_period_list = [""]
+        self.args = ""
 
-        #追加するリネーム変数宣言・memcpy関数
-        self.reserve_buffer = ""
-        self.input_memcpy = ""
-        self.output_memcpy = ""
+    def generate(self):
+        generated_line = ""
 
-        #リネームされた関数
-        self.renamed_func_decl = ""
+        p_func_decl_int = "^int(.+)%s(.*)\((.*)" % self.hw_funcname
+        p_func_decl_void = "void(.+)%s(.*)\((.*)" % self.hw_funcname
 
-    def __dividesource(self):
+        with open(self.hw_file_name,"r") as f:
+            hw_source = f.readlines()
 
-        #ソース分割で使用するパターンの定義
-        func_pattern = "(.+)%s(.*)\(((.*) (.*))*\)" % self.EP.func_name
-        other_func_pattern = "(.+)^(%s)(.*)\(((.*) (.*))*\)" % self.EP.func_name
-        pragma_pattern = "#pragma HLS .*"
-        return_pattern = "(.*)return (.*)"
+        if self.vendorname == "xilinx":
+            generated_line += "#include <string.h>\n"
 
-        #ソースファイル
-        hw_source = open(self.hw_file_name,"r")
+        l = 0
+        while (l<len(hw_source)):
+            line = hw_source[l]
 
-        #ソース分割で使用するフラグ
-        func_flag = False
-        pragma_end_flag = False
-        other_func_flag = False
-        return_period_number = 0
-
-        for line in hw_source:
-            if (re.match(func_pattern,line)): #関数定義行抜き出し
-                func_flag = True
-                self.func_decl_line = line
-            elif (func_flag == True and ((re.match(pragma_pattern,line)) == None) and pragma_end_flag == False): #プラグマ終了把握
-                pragma_end_flag = True
-            elif (pragma_end_flag == True): # returnで区切る，他の関数定義に入ったら区切りなし
-                if (re.search(return_pattern,line) != None and other_func_flag == False):
-                    return_period_number = return_period_number + 1
-                    self.return_period_list.append("")
-                self.return_period_list[return_period_number] +=line
-                if (re.match(other_func_pattern,line) != None):
-                    other_func_flag = True
-
-            if (func_flag == False): #関数定義より前の行を抽出
-                self.before_func_decl += line
-            
-            if (func_flag == True and re.match(pragma_pattern,line) != None and pragma_end_flag == False): #プラグマ行を抽出
-                self.pragmas_lines += line
-       
-        hw_source.close()
-
-    #リネーム用・入出力memcpyの宣言の作成
-    def __makerenameparm(self):
-
-        for i in range(0,len(self.EP.parm_decls)):
-            if self.EP.parm_interfaces[i] == "m_axi":
-                parms_str = ""
-                if (len(self.EP.parm_suffixs[i]) != 0):
-                    for j in range(0,len(self.EP.parm_suffixs[i])):
-                        parms_str += "[%s]" % (self.EP.parm_suffixs[i][j])
-                self.reserve_buffer += "    " + self.EP.parm_types[i] + " " + self.EP.parm_decls[i] + parms_str + ";\n"
-
-        for i in range(0,len(self.EP.parm_decls)): # リネームからのコピー入力memcpy
-            if self.EP.parm_interfaces[i] == "m_axi":
-                if (self.EP.parm_directions[i] == "in" or self.EP.parm_directions[i] == "io"):
-                    self.input_memcpy += "    memcpy(%s, p%s, sizeof(%s) * %d);\n" % (self.EP.parm_decls[i],self.EP.parm_decls[i],self.EP.parm_types[i],self.EP.parm_data_numbers[i])
-
-        for i in range(0,len(self.EP.parm_decls)): # return文の前につける出力memcpy
-            if self.EP.parm_interfaces[i] == "m_axi":
-                if (self.EP.parm_directions[i] == "out" or self.EP.parm_directions[i] == "io"):
-                    self.output_memcpy += "    memcpy(p%s, %s, sizeof(%s) * %d);\n" % (self.EP.parm_decls[i],self.EP.parm_decls[i],self.EP.parm_types[i],self.EP.parm_data_numbers[i]) #pをつける
-
-    #関数定義行の置き換えした宣言を作成
-    def __makerenamefuncdecl(self):
-
-        parms_str = ""
-
-        for i in range(0,len(self.EP.parm_decls)):
-            if (i != 0):
-                parms_str += ", "
-            if self.EP.parm_interfaces[i] == "m_axi":
-                parms_str += self.EP.parm_types[i] + " p" + self.EP.parm_decls[i] #m_axiのときは前にpをつけてリネーミング
+            if (re.match(p_func_decl_int,line) or re.match(p_func_decl_void,line)):
+                func_decl_line = []
+                func_decl_line.append(line)
+                while "{" not in line:
+                    l += 1
+                    line = hw_source[l]
+                    func_decl_line.append(line)
+                generated_line += self._replace_func_decl(func_decl_line)
+            elif "return" in line:
+                generated_line += self._replace_return(line, self.args)
             else:
-                parms_str += self.EP.parm_types[i] + " " + self.EP.parm_decls[i]
-            if (len(self.EP.parm_suffixs[i]) != 0):
-                for j in range(0,len(self.EP.parm_suffixs[i])):
-                    parms_str += "[%s]" % (self.EP.parm_suffixs[i][j])
-    
-        parms_str = "(%s)" % (parms_str)
+                generated_line += line
+            l += 1
+       
+        return generated_line
 
-        self.renamed_func_decl = re.sub("\((.+)\)",parms_str,self.func_decl_line)
+    def _replace_func_decl(self, line):
+        st_line = ""
+        for l in line:
+            st_line += l[:-1]
 
-    def renamandmemcpyplus(self):
+        if self.vendorname == "xilinx":
+            (replaced_line,self.args) = self._x_replace_func_decl(st_line)
+            replaced_line += "\n"
+            replaced_line += self._x_add_hwif_decl()
+            replaced_line += self._x_add_ver_in(self.args)
+            return replaced_line
 
-        #それぞれ分割など実行
-        self.__dividesource()
-        self.__makerenameparm()
-        self.__makerenamefuncdecl()
+        return st_line
 
-        renamed_hw_file = ""
+    def _x_replace_func_decl(self, line):
+        [func_decl_pre, func_decl_arg] = line.split('(')
+        replaced_line = func_decl_pre + "("
 
-        # hwファイルを再構築
-        renamed_hw_file += self.before_func_decl
-        renamed_hw_file += self.renamed_func_decl
-        renamed_hw_file += re.sub("m_axi port=","m_axi port=p",self.pragmas_lines)
-        renamed_hw_file += self.reserve_buffer
-        renamed_hw_file += self.input_memcpy
+        args = re.split('[,)]', func_decl_arg)
+        #args = func_decl_arg.split(',')
+        for (arg,jarg) in zip(args,self.json_args):
+            if jarg.mode == "m_axi":
+                replaced_line += arg.replace(jarg.name, 'p'+jarg.name);
+            else:
+                replaced_line += arg
+            replaced_line += ','
 
-        #return文ごとに出力memcpyを記述
-        for i in range(0,len(self.return_period_list)):
-            renamed_hw_file += self.return_period_list[i]
-            if (i+1 != len(self.return_period_list)):
-                renamed_hw_file += self.output_memcpy
+        return (replaced_line[:-1]+"){",args)
 
-        return renamed_hw_file
+    def _x_add_hwif_decl(self):
+        env = Environment(loader=FileSystemLoader(self.toolchain_path+'template\\'+self.vendorname+'\\'))
+        env.globals.update(zip=zip)
+        template = env.get_template('hwif.c')
+
+        name = []
+        mode = []
+        offset = []
+        bundle = []
+        for jarg in self.json_args:
+            if jarg.mode == "m_axi":
+                name.append('p'+jarg.name)
+            else:
+                name.append(jarg.name)
+            mode.append(jarg.mode)
+            offset.append(jarg.offset)
+            bundle.append(jarg.bundle)
+
+        data = {'name': name, 'mode': mode, 'offset': offset, 'bundle': bundle}
+        return template.render(data)+'\n'
+
+    def _x_add_ver_in(self, args):
+        line = ""
+        for (arg,jarg) in zip(args,self.json_args):
+            if jarg.mode == "m_axi":
+                line += re.sub('^\s*', '\t', arg)+";\n"
+
+        for (arg,jarg) in zip(args,self.json_args):
+            if jarg.mode == "m_axi" and jarg.direction == "in":
+                arg = re.sub('^\s*', '', arg)
+                arg_type = re.split('\s*', arg)[0]
+                line += "\tmemcpy(%s, p%s, sizeof(%s) * %s);\n" % (jarg.name,jarg.name,arg_type,jarg.size)
+
+        return line
+
+    def _replace_return(self, line, args):
+        if self.vendorname == "xilinx":
+            replaced_line = self._x_add_ver_out(args)
+            return replaced_line+line
+
+        return line
+
+    def _x_add_ver_out(self, args):
+        line = ""
+
+        for (arg,jarg) in zip(args,self.json_args):
+            if jarg.mode == "m_axi" and jarg.direction == "out":
+                arg = re.sub('^\s*', '', arg)
+                arg_type = re.split('\s*', arg)[0]
+                line += "\tmemcpy(%s, p%s, sizeof(%s) * %s);\n" % (jarg.name,jarg.name,arg_type,jarg.size)
+
+        return line
+
 
 if __name__ == "__main__":
     sys.exit(main())
