@@ -147,7 +147,7 @@ update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 launch_runs impl_1 -to_step write_bitstream
 wait_on_run impl_1
-open_bd_design { {{ projpath }}/{{ projname }}_vivado/{{ projname }}.srcs/sources_1/bd/{{ funcname }}_system/{{ funcname }}_system.bd }
+open_bd_design {{ '{' }}{{ projpath }}/{{ projname }}_vivado/{{ projname }}.srcs/sources_1/bd/{{ funcname }}_system/{{ funcname }}_system.bd}
 file mkdir {{ projpath }}/{{ projname}}_vivado/{{ projname }}.sdk
 file copy -force {{ projpath }}/{{ projname }}_vivado/{{ projname }}.runs/impl_1/{{ funcname }}_system_wrapper.sysdef {{ projpath }}/{{ projname }}_vivado/{{ projname }}.sdk/{{ funcname }}_system_wrapper.hdf
 open_run impl_1

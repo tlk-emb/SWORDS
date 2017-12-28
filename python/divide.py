@@ -16,8 +16,6 @@ def write_source_files(output, hardware_file, software_file):
     software_output = map(itemgetter(2),
                           filter(lambda t: t[1] is True, output))
     
-    software_output.insert(0, "#include \"xtime_l.h\"")
-
     with open(hardware_file, "w") as f:
         f.write("\n".join(hardware_output))
     with open(software_file, "w") as f:

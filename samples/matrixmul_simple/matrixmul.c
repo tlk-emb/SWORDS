@@ -1,3 +1,4 @@
+#include "xtime_l.h"
 #define P 32
 
 int matrixmul_soft(int a[P][P], int b[P][P], int c[P][P]){

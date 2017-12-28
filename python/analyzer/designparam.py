@@ -184,7 +184,10 @@ class DesignAnalysis(object):
             source = map(lambda s: s.rstrip(), f.readlines())
 
         for line in source:
-            if not ((line.startswith("#") or line.startswith("typedef")) and line != "\n") or line.startswith("#pragma HLS") :
+            if line.startswith("#include"):
+                output.append((False, True, line))
+                continue
+            elif not ((line.startswith("#define") or line.startswith("typedef")) and line != "\n") or line.startswith("#pragma HLS") :
                 continue
             output.append((True, True, line))
 
