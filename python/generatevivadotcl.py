@@ -10,8 +10,6 @@ import json
 import os
 from jinja2 import Template,Environment,FileSystemLoader
 
-from extractjsonparam import ExtractJsonParameter
-
 args = sys.argv
 
 def main():
