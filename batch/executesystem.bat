@@ -5,13 +5,11 @@ CALL %toolchainpath%\..\setenv.bat
   
 SET sdkpath=%xilinxpath%\SDK\%xilinxversion%\bin
 
-SET cfile=%~1
-SET jsonfile=%~2
-SET projectname=%~3
+SET projectname=%~1
 
 SET toolchainpath=%~dp0
 
-if not {%~1} == {} if not {%~2} == {} if not {%~3} == {} (
+if not {%~1} == {} (
     
   cd %projectname%
 
