@@ -32,6 +32,13 @@ SCHEMA = {
             },
             "required": ["name", "mode", "size"]
         },
+        "hardware_task_bundle": {
+            "type": "object",
+            "properties": {
+                "bundle": {"type": "string"},
+                "port": {"type": "string"}
+            },
+        },
         "hardware_task": {
             "type": "object",
             "properties": {
@@ -43,6 +50,10 @@ SCHEMA = {
                 "arguments": {
                     "type": "array",
                     "items": {"$ref": "#/definitions/hardware_task_argument"}
+                },
+                "bundles": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/hardware_task_bundle"}
                 }
             },
             "required": ["name", "arguments"]
@@ -85,10 +96,11 @@ class SoftwareTask(Task):
         return SoftwareTask(node["name"])
 
 class HardwareTask(Task):
-    def __init__(self, name, mode, arguments):
+    def __init__(self, name, mode, arguments, bundles):
         super(HardwareTask, self).__init__(name)
         self.mode = mode
         self.arguments = arguments
+        self.bundles = bundles
 
     @staticmethod
     def parse_config(node):
@@ -96,8 +108,10 @@ class HardwareTask(Task):
         mode = node.get("mode")
         arguments = [HardwareTaskArgument.parse_config(n)
                      for n in node["arguments"]]
+        bundles = [HardwareTaskBundle.parse_config(n)
+                     for n in node["bundles"]]
 
-        return HardwareTask(name, mode, arguments)
+        return HardwareTask(name, mode, arguments, bundles)
 
 
 class HardwareTaskArgument(object):
@@ -117,8 +131,20 @@ class HardwareTaskArgument(object):
         offset = node.get("offset")
         bundle = node.get("bundle")
         direction = node.get("direction")
-        size = node.get("size")
+        size = node["size"]
         return HardwareTaskArgument(name, mode, offset, bundle, direction, size)
+
+
+class HardwareTaskBundle(object):
+    def __init__(self, bundle=None, port=None):
+        self.bundle = bundle
+        self.port = port
+
+    @staticmethod
+    def parse_config(node):
+        bundle = node.get("bundle")
+        port = node.get("port")
+        return HardwareTaskBundle(bundle, port)
 
 
 class TasksConfig(object):
