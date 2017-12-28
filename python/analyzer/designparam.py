@@ -115,10 +115,6 @@ class DesignAnalysis(object):
         initial = set(config.hardware_tasks.keys())
         for name in self.calc_set_of_hardware_functions(initial):
             self.functions[name].is_hardware = True
-            #if name in config.hardware_tasks:
-            #    task = config.hardware_tasks[name]
-            #    self.functions[name].pragmas = task.get_directive_pragmas()
-            #print self.functions[name].pragmas
 
     def calc_set_of_software_functions(self, soft_initial, hard_initial):
         """ソフトウェア化される関数名の集合を求める"""
