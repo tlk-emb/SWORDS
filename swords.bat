@@ -79,11 +79,7 @@ if "%ifmake%" == "True" (
     cd ..\
     exit /b 1
   )
-  if not "%llvmfilepath%" == "" (
-    call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath% %llvmfilepath%
-  ) else (
-    call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath%
-  )
+  call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath%
 )
 
 
