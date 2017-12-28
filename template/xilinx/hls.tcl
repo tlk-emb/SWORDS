@@ -1,6 +1,6 @@
 open_project {{ projname }}_hls
 set_top {{ funcname }}
-add_files {{ cfilepath }}
+add_files {{ cfilename }}
 open_solution "solution1"
 {%- if boardname == "zedboard": %}
 set_part {xc7z020clg484-1}

@@ -49,7 +49,9 @@ if not exist "%jsonfile%" (
   exit /b 1
 )
 
-mkdir %projectname%
+if not exist "%projectname%" (
+  mkdir %projectname%
+)
 cd %projectname%
 
 
@@ -77,11 +79,7 @@ if "%ifmake%" == "True" (
     cd ..\
     exit /b 1
   )
-  if not "%llvmfilepath%" == "" (
-    call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath% %llvmfilepath%
-  ) else (
-    call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath%
-  )
+  call %toolchainpath%\batch\ifmake.bat %cfile% %jsonfile% %toolchainpath%
 )
 
 
@@ -91,7 +89,7 @@ if "%opmode%" == "hls" set hls=True
 
 set cfile=%~1
 if "%hls%" == "True" (
-  set hwcfile=%cfile:~0,-2%_hw_re.c
+  set hwcfile=%cfile:~0,-2%_hwif.c
   if not exist "%hwcfile%" (
     echo Error: hls process cannot be operated because ifmake has not been done.
     cd ..\
@@ -121,7 +119,7 @@ if "%opmode%" == "swbuild" set build=True
 
 set cfile=%~1
 if "%build%" == "True" (
-  if not exist "%projectname%_vivado\%projectname%.runs" (
+  if not exist "%projectname%_vivado\%projectname%.sdk" (
     echo Error: swbuild process cannot be operated because hwsyn has not been done.
     cd ..\
     exit /b 1

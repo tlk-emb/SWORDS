@@ -4,7 +4,7 @@ import sys
 import argparse
 from jinja2 import Template,Environment,FileSystemLoader
 
-from extractjsonparam import ExtractJsonParameter
+from analyzer.jsonparam import TasksConfig
 
 args = sys.argv
 
@@ -12,60 +12,41 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("cfile_path")
-    parser.add_argument("json_file_path")
+    parser.add_argument("cfile_name")
+    parser.add_argument("json_file_name")
     parser.add_argument("project_name")
     parser.add_argument("toolchain_path")
 
     args = parser.parse_args()
 
-    cfile_path = args.cfile_path
-    json_file_path = args.json_file_path
+    cfile_name = args.cfile_name
+    json_file_name = args.json_file_name
     project_name = args.project_name
     toolchain_path = args.toolchain_path
 
-    EJP = ExtractJsonParameter(json_file_path)
-    function_name = EJP.Func_Name()
-    vendor_name = EJP.Vendor_Name()
-    board_name = EJP.Board_Name()
+    # JSONÇ©ÇÁê›íËÇì«Ç›çûÇ›
+    config = TasksConfig.parse_config(json_file_name)
+    if config is None:
+        return 1
+    function_name = config.hw_funcname(config)
+    vendor_name = config.vendorname(config)
+    board_name = config.boardname(config)
+
 
     tclfile_name = project_name + "_hls.tcl"
 
     tclfile = open(tclfile_name,"w")
 
-    tclfile.write(generatehlstcl(cfile_path, project_name, function_name, vendor_name, board_name, toolchain_path))
+    tclfile.write(generatehlstcl(cfile_name, project_name, function_name, vendor_name, board_name, toolchain_path))
 
 
-def generatehlstcl(cfile_path, project_name, function_name, vendor_name, board_name, toolchain_path):
+def generatehlstcl(cfile_name, project_name, function_name, vendor_name, board_name, toolchain_path):
     env = Environment(loader=FileSystemLoader(toolchain_path+'template\\'+vendor_name+'\\'))
     template = env.get_template('hls.tcl')
 
-    data = {'cfilepath': cfile_path, 'projname': project_name, 'funcname': function_name, 'boardname': board_name}
+    data = {'cfilename': cfile_name, 'projname': project_name, 'funcname': function_name, 'boardname': board_name}
     return template.render(data)
 
-
-    tclfile_content = ""
-
-    tclfile_content += "open_project %s_hls\n" % (project_name)
-    tclfile_content += "set_top %s\n" % (toplevel_function_name)
-    tclfile_content += "add_files %s\n" % (cfile_path)
-    tclfile_content += "open_solution \"solution1\"\n" 
-    if board_name == "zedboard":
-        tclfile_content += "set_part {xc7z020clg484-1}\n"
-    elif board_name == "zc702":
-        tclfile_content += "set_part {xc7z020clg484-1}\n"
-    elif board_name == "zc706":
-        tclfile_content += "set_part {xc7z045ffg900-2}\n"
-    elif board_name == "zybo":
-        tclfile_content += "set_part {xc7z010clg400-1}\n"
-    #else:
-    #    tclfile_content += "set_part {xc7z020clg484-1}\n"
-    tclfile_content += "create_clock -period 10 -name default\n"
-    tclfile_content += "csynth_design\n"
-    tclfile_content += "export_design -format ip_catalog\n"
-    tclfile_content += "exit\n"
-
-    return tclfile_content
 
 if __name__ == "__main__":
     sys.exit(main())
