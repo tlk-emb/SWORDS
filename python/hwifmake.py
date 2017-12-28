@@ -55,9 +55,9 @@ class Hwif_Generate:
     def __init__(self, hw_file_name, config, toolchain_path):
         self.hw_file_name = hw_file_name
         self.toolchain_path = toolchain_path
-        self.hw_funcname = config.hw_funcname(config)
-        
-        task = config.hardware_tasks[self.hw_funcname]
+        self.func_name = config.hw_funcname(config)
+
+        task = config.hardware_tasks[self.func_name]
         self.json_args = task.arguments
 
         self.vendorname = config.vendorname(config)
@@ -67,26 +67,30 @@ class Hwif_Generate:
     def generate(self):
         generated_line = ""
 
-        p_func_decl_int = "^int(.+)%s(.*)\((.*)" % self.hw_funcname
-        p_func_decl_void = "void(.+)%s(.*)\((.*)" % self.hw_funcname
+        if self.vendorname == "xilinx":
+            generated_line += "#include <string.h>\n"
+
+        p_func_decl_int = "^int(\s+)%s(\s*)\(" % self.func_name
+        p_func_decl_void = "void(\s+)%s(\s*)\(" % self.func_name
 
         with open(self.hw_file_name,"r") as f:
             hw_source = f.readlines()
-
-        if self.vendorname == "xilinx":
-            generated_line += "#include <string.h>\n"
 
         l = 0
         while (l<len(hw_source)):
             line = hw_source[l]
 
             if (re.match(p_func_decl_int,line) or re.match(p_func_decl_void,line)):
-                func_decl_line = []
-                func_decl_line.append(line)
+                func_decl_lines = []
                 while "{" not in line:
-                    l += 1
                     line = hw_source[l]
-                    func_decl_line.append(line)
+                    line = re.sub('^\s*', '', line)
+                    line = re.sub('$\s*', '', line)
+                    func_decl_lines.append(line)
+                    l += 1
+                func_decl_line = ""
+                for line in func_decl_lines:
+                    func_decl_line += line
                 generated_line += self._replace_func_decl(func_decl_line)
             elif "return" in line:
                 generated_line += self._replace_return(line, self.args)
@@ -97,18 +101,15 @@ class Hwif_Generate:
         return generated_line
 
     def _replace_func_decl(self, line):
-        st_line = ""
-        for l in line:
-            st_line += l[:-1]
 
         if self.vendorname == "xilinx":
-            (replaced_line,self.args) = self._x_replace_func_decl(st_line)
+            (replaced_line,self.args) = self._x_replace_func_decl(line)
             replaced_line += "\n"
             replaced_line += self._x_add_hwif_decl()
             replaced_line += self._x_add_ver_in(self.args)
             return replaced_line
 
-        return st_line
+        return line
 
     def _x_replace_func_decl(self, line):
         [func_decl_pre, func_decl_arg] = line.split('(')
