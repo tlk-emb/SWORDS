@@ -123,7 +123,7 @@ if "%opmode%" == "swbuild" set build=True
 
 set cfile=%~1
 if "%build%" == "True" (
-  if not exist "%projectname%_vivado\%projectname%.runs" (
+  if not exist "%projectname%_vivado\%projectname%.sdk" (
     echo Error: swbuild process cannot be operated because hwsyn has not been done.
     cd ..\
     exit /b 1
