@@ -18,8 +18,6 @@ def main():
     parser.add_argument("c_file")
     parser.add_argument("conf_file")
     parser.add_argument("toolchain_path")
-    parser.add_argument("--llvm-libdir", default=None, required=False)
-    parser.add_argument("--llvm-libfile", default=None, required=False)
     parser.add_argument(
         "--logging", default="WARNING",
         choices=["debug", "info", "warning", "error", "critical"])
