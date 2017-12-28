@@ -6,9 +6,9 @@
     ],
     "hardware_tasks": [{
         "name": "mul", "mode": "s_axilite", "arguments": [
-            {"name": "x", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "size": "64 },
-            {"name": "y", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "size": "64 },
-            {"name": "z", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "out", "size": "64 }
+            {"name": "x", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": "64 },
+            {"name": "y", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": "64 },
+            {"name": "z", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "out", "num": "64 }
         ],
         "bundles": [
             {"bundle": "bundle_a", "port": "GP0" }

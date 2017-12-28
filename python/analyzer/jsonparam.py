@@ -28,9 +28,9 @@ SCHEMA = {
                 "offset": {"type": "string"},
                 "bundle": {"type": "string"},
                 "direction": {"type": "string"},
-                "size": {"type": "string"}
+                "num": {"type": "string"}
             },
-            "required": ["name", "mode", "size"]
+            "required": ["name", "mode", "num"]
         },
         "hardware_task_bundle": {
             "type": "object",
@@ -116,13 +116,13 @@ class HardwareTask(Task):
 
 class HardwareTaskArgument(object):
     def __init__(self, name, mode, offset=None, bundle=None,
-            direction=None, size=None):
+            direction=None, num=None):
         self.name = name
         self.mode = mode
         self.offset = offset
         self.bundle = bundle
         self.direction = direction
-        self.size = size
+        self.num = num
 
     @staticmethod
     def parse_config(node):
@@ -131,8 +131,8 @@ class HardwareTaskArgument(object):
         offset = node.get("offset")
         bundle = node.get("bundle")
         direction = node.get("direction")
-        size = node["size"]
-        return HardwareTaskArgument(name, mode, offset, bundle, direction, size)
+        num = node["num"]
+        return HardwareTaskArgument(name, mode, offset, bundle, direction, num)
 
 
 class HardwareTaskBundle(object):

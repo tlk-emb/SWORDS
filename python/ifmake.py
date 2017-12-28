@@ -76,7 +76,7 @@ class generateIF:
 
         self.parm_data_numbers = []
         for args in self.json_args:
-            self.parm_data_numbers.append(str(args.size))
+            self.parm_data_numbers.append(str(args.num))
 
         self.parm_bundles = []
         for bundle in self.json_bundles:
@@ -195,7 +195,7 @@ class generateIF:
         global_vals = ""
 
         global_vals += "volatile int %s_done = 0;\n" % (self.func_name_l)
-        #ä½¿ç”¨ç”¨é€”ä¸æ˜ã®ç‚ºã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆ
+        #g—p—p“r•s–¾‚Ìˆ×ƒRƒƒ“ƒgƒAƒEƒg
         #global_vals += "unsigned int *baseaddr = XPAR_%s_0_S_AXI_AXILITES_BASEADDR;\n\n" % (self.func_name_u)
 
         global_vals += "static int used = 0;\n"
@@ -214,7 +214,7 @@ class generateIF:
             configs += "    XPAR_%s_0_S_AXI_AXILITES_BASEADDR,\n" % (self.func_name_u)
             for bundle in self.parm_slave_bundles_noduplication:
                 configs += "    XPAR_%s_0_S_AXI_%s_BASEADDR,\n" % (self.func_name_u, bundle.upper())
-            configs += "    1\n" #ã“ã®è¾ºLiteã®çŠ¶æ³ã«åˆã‚ã›ã¦å¢—ã‚„ã™å¿…è¦ãŒã‚ã‚‹ portãŒå¢—ãˆã‚‹ã¨ãƒ€ãƒ¡ã«ãªã‚‹ã‚ˆ
+            configs += "    1\n" #‚±‚Ì•ÓLite‚Ìó‹µ‚É‡‚í‚¹‚Ä‘‚â‚·•K—v‚ª‚ ‚é port‚ª‘‚¦‚é‚Æƒ_ƒ‚É‚È‚é‚æ
             configs += "};\n\n"
 
             configs += "static X%s_Config %sc = {\n" % (self.func_name_ul, self.func_name_l)
@@ -227,7 +227,7 @@ class generateIF:
 
         return configs
 
-    def __generateIfxststatus(self): # generateSystemInterruptsã§ä½•å›ã‹ä½¿ç”¨
+    def __generateIfxststatus(self): # generateSystemInterrupts‚Å‰½‰ñ‚©g—p
 
         if_xst_status = ""
 
@@ -241,12 +241,12 @@ class generateIF:
 
         system_interrupts = ""
         if "axis" in self.parm_interfaces:
-            #DMAç”¨ã®å‰²ã‚Šè¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©è¨­å®šç”¨é–¢æ•°ã‚’å®šç¾©
+            #DMA—p‚ÌŠ„‚è‚İƒnƒ“ƒhƒ‰İ’è—pŠÖ”‚ğ’è‹`
             stream_interrupt_setup_file = open(self.if_template_path + '/stream_interrupt_setup.c')
             system_interrupts += stream_interrupt_setup_file.read()
             stream_interrupt_setup_file.close()
         else:
-            #é–¢æ•°ã®returnç”¨ã®å‰²ã‚Šè¾¼ã¿è¨­å®šç”¨é–¢æ•°ã‚’å®šç¾©
+            #ŠÖ”‚Ìreturn—p‚ÌŠ„‚è‚İİ’è—pŠÖ”‚ğ’è‹`
             system_interrupts += "void %s_InterruptHandler(){\n" % (self.func_name_ul)
             system_interrupts += "  %s_done = 1;\n" % (self.func_name_l)
             system_interrupts += "  X%s_InterruptClear(&%sx, 1);\n" % (self.func_name_ul, self.func_name_l)
@@ -294,7 +294,7 @@ class generateIF:
         init_dma += "   XAxiDma_Config *CfgPtr;\n"
         init_dma += "   int Status;\n\n"
 
-        init_dma += "   CfgPtr = XAxiDma_LookupConfig( (XPAR_AXI_DMA_DEVICE_ID) );\n" #2å€‹ä»¥ä¸Šå¿…è¦ãªå ´åˆã‚‚ã‚ã‚‹ã
+        init_dma += "   CfgPtr = XAxiDma_LookupConfig( (XPAR_AXI_DMA_DEVICE_ID) );\n" #2ŒÂˆÈã•K—v‚Èê‡‚à‚ ‚é‚¼
         init_dma += "   if(!CfgPtr){\n"
         init_dma += "       printf(\"Error looking for AXI DMA config\\n\\r\");\n"
         init_dma += "       return XST_FAILURE;\n"
@@ -327,7 +327,7 @@ class generateIF:
 
         IFL_intersection = ""
 
-        if "axis" in self.parm_interfaces: #streamãŒã‚ã‚‹å ´åˆã«
+        if "axis" in self.parm_interfaces: #stream‚ª‚ ‚éê‡‚É
             IFL_intersection += "  int Status = init_dma();\n"
         else:
             IFL_intersection += "\n"
@@ -340,21 +340,21 @@ class generateIF:
 
         return IFL_intersection
     
-    def __generateEarlyParms(self): #GPå…¥åŠ›å¼•æ•°/HPãƒ»ACPã®ã‚¢ãƒ‰ãƒ¬ã‚¹æŒ‡å®š
+    def __generateEarlyParms(self): #GP“ü—Íˆø”/HPEACP‚ÌƒAƒhƒŒƒXw’è
 
         parms_set_str = ""
 
-        if self.use_hp_ports: #HPãƒãƒ¼ãƒˆã‚’ä½¿ã†å ´åˆã‚­ãƒ£ãƒƒã‚·ãƒ¥ç„¡åŠ¹åŒ–
+        if self.use_hp_ports: #HPƒ|[ƒg‚ğg‚¤ê‡ƒLƒƒƒbƒVƒ…–³Œø‰»
             parms_set_str += "  Xil_DCacheDisable();\n\n"
 
         for i in range(0,len(self.parm_decls)):
             if self.parm_interfaces[i] == "s_axilite":
                 if self.parm_directions[i] == "in":
-                    if self.parm_data_numbers[i] == 0: # ã‚¹ã‚«ãƒ©ãƒ¼ã®å ´åˆ
+                    if self.parm_data_numbers[i] == 0: # ƒXƒJƒ‰[‚Ìê‡
                         parms_set_str += "  X%s_Set_%s(&%sx, %s);\n" % (self.func_name_ul, self.parm_decls[i], self.func_name_l, self.parm_decls[i])
-                    else: # ã‚¹ã‚«ãƒ©ãƒ¼ã˜ã‚ƒãªã„å ´åˆ
+                    else: # ƒXƒJƒ‰[‚¶‚á‚È‚¢ê‡
                         parms_set_str += "  X%s_Write_%s_Words(&%sx, 0, %s, sizeof(%s) * %s / 4);\n" % (self.func_name_ul, self.parm_decls[i], self.func_name_l, self.parm_decls[i], self.parm_decls[i], self.parm_data_numbers[i])
-            elif self.parm_interfaces[i] == "m_axi": # masterã®å ´åˆ
+            elif self.parm_interfaces[i] == "m_axi": # master‚Ìê‡
                 parms_set_str += "  X%s_Set_p%s(&%sx, %s);\n" % (self.func_name_ul, self.parm_decls[i], self.func_name_l, self.parm_decls[i])
             elif self.parm_interfaces[i] == "axis": #
                 pass
@@ -388,19 +388,19 @@ class generateIF:
 
         return parms_set_str
 
-    def __generateLatterParms(self): #GPå‡ºåŠ›å¼•æ•°
+    def __generateLatterParms(self): #GPo—Íˆø”
 
         parms_get_str = ""
 
         for i in range(0,len(self.parm_decls)):
             if self.parm_interfaces[i] == "s_axilite":
                 if self.parm_directions[i] == "out":
-                    if self.parm_data_numbers[i] == 0: # ã‚¹ã‚«ãƒ©ãƒ¼ã®å ´åˆ
+                    if self.parm_data_numbers[i] == 0: # ƒXƒJƒ‰[‚Ìê‡
                         parms_get_str += "  %s = X%s_Get_%s(&%sx);\n" % (self.parm_decls[i], self.func_name_ul, self.parm_decls[i], self.func_name_l)
-                    else: # ã‚¹ã‚«ãƒ©ãƒ¼ã˜ã‚ƒãªã„å ´åˆ
+                    else: # ƒXƒJƒ‰[‚¶‚á‚È‚¢ê‡
                         parms_get_str += "  X%s_Read_%s_Words(&%sx, 0, %s, sizeof(%s) * %s / 4);\n" % (self.func_name_ul, self.parm_decls[i], self.func_name_l, self.parm_decls[i], self.parm_decls[i], self.parm_data_numbers[i])
 
-        if self.use_hp_ports: #HPãƒãƒ¼ãƒˆã‚’ä½¿ã†å ´åˆã‚­ãƒ£ãƒƒã‚·ãƒ¥ç„¡åŠ¹åŒ–ã«ã—ãŸã®ã‚’æˆ»ã™
+        if self.use_hp_ports: #HPƒ|[ƒg‚ğg‚¤ê‡ƒLƒƒƒbƒVƒ…–³Œø‰»‚É‚µ‚½‚Ì‚ğ–ß‚·
             parms_get_str += "  Xil_DCacheEnable();\n\n"
 
         if self.return_type == "void":
@@ -420,7 +420,7 @@ class generateIF:
 
         IFL_interrupt += self.__generateIFLIntersection()
         if "axis" in self.parm_interfaces:
-            #DMAç”¨ã®å‰²ã‚Šè¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©è¨­å®šç”¨é–¢æ•°ã‚’å‘¼ã³å‡ºã—
+            #DMA—p‚ÌŠ„‚è‚İƒnƒ“ƒhƒ‰İ’è—pŠÖ”‚ğŒÄ‚Ño‚µ
             IFL_interrupt += " Status = SetupDMAInterruptSystem(&Intc, &AxiDma, TX_INTR_ID, RX_INTR_ID);\n"
             IFL_interrupt += " if (Status != XST_SUCCESS) {\n"
 
@@ -428,11 +428,11 @@ class generateIF:
             IFL_interrupt += "     return XST_FAILURE;\n"
             IFL_interrupt += " }\n\n"
 
-            #DMAç”¨ã®å‰²ã‚Šè¾¼ã¿è¨­å®šã‚’ON
+            #DMA—p‚ÌŠ„‚è‚İİ’è‚ğON
             IFL_interrupt += " XAxiDma_IntrEnable(&AxiDma, XAXIDMA_IRQ_ALL_MASK,XAXIDMA_DMA_TO_DEVICE);\n"
             IFL_interrupt += " XAxiDma_IntrEnable(&AxiDma, XAXIDMA_IRQ_ALL_MASK,XAXIDMA_DEVICE_TO_DMA);\n"
         else:
-            #é–¢æ•°ã®returnç”¨ã®å‰²ã‚Šè¾¼ã¿è¨­å®šç”¨é–¢æ•°ã‚’å‘¼ã³å‡ºã—
+            #ŠÖ”‚Ìreturn—p‚ÌŠ„‚è‚İİ’è—pŠÖ”‚ğŒÄ‚Ño‚µ
             IFL_interrupt += "  if(ScuGicInterrupt_Init(XPAR_X%s_0_DEVICE_ID, &%sx) != 0){\n" % (self.func_name_u, self.func_name_l)
             IFL_interrupt += "      printf(\"Interrupt Initialization Error\\n\");\n"
             IFL_interrupt += "      return 1;\n"
@@ -440,7 +440,7 @@ class generateIF:
 
             IFL_interrupt += "  X%s_InterruptGlobalEnable(&%sx);\n" % (self.func_name_ul, self.func_name_l)
             IFL_interrupt += "  X%s_InterruptEnable(&%sx, 1);\n\n" % (self.func_name_ul, self.func_name_l)
-        #ã‚­ãƒ£ãƒƒã‚·ãƒ¥ãƒ•ãƒ©ãƒƒã‚·ãƒ¥/ã‚¹ã‚¿ãƒ¼ãƒˆ/DMAè»¢é€ã¨ã‹
+        #ƒLƒƒƒbƒVƒ…ƒtƒ‰ƒbƒVƒ…/ƒXƒ^[ƒg/DMA“]‘—‚Æ‚©
         IFL_interrupt += self.__generateEarlyParms()
 
         if "axis" in self.parm_interfaces:
@@ -479,9 +479,9 @@ class generateIF:
         IFL_poling += self.__generateIFLIntersection()
 
         if "axis" not in self.parm_interfaces:
-            IFL_poling += self.__generateIFLPolingIdle() #DMAä½¿ç”¨ã®å ´åˆã¯HWãƒ‡ãƒ¼ã‚¿è»¢é€å‰ã«DMAã®ã‚¢ã‚¤ãƒ‰ãƒ«ã‚’ç¢ºèªã—ãªã„
+            IFL_poling += self.__generateIFLPolingIdle() #DMAg—p‚Ìê‡‚ÍHWƒf[ƒ^“]‘—‘O‚ÉDMA‚ÌƒAƒCƒhƒ‹‚ğŠm”F‚µ‚È‚¢
 
-        #ã‚­ãƒ£ãƒƒã‚·ãƒ¥ãƒ•ãƒ©ãƒƒã‚·ãƒ¥/ã‚¹ã‚¿ãƒ¼ãƒˆ/DMAè»¢é€ã¨ã‹
+        #ƒLƒƒƒbƒVƒ…ƒtƒ‰ƒbƒVƒ…/ƒXƒ^[ƒg/DMA“]‘—‚Æ‚©
         IFL_poling += self.__generateEarlyParms()
 
         IFL_poling += self.__generateIFLPolingIdle()
@@ -505,7 +505,7 @@ class generateIF:
         iflayer += self.__generateSystemInterrupts()
         iflayer += "\n"
 
-        if "axis" in self.parm_interfaces: #streamãŒã‚ã‚‹å ´åˆ
+        if "axis" in self.parm_interfaces: #stream‚ª‚ ‚éê‡
             iflayer += self.__generateInitDma()
             iflayer += "\n"
 

@@ -155,7 +155,7 @@ class Hwif_Generate:
             if jarg.mode == "m_axi" and jarg.direction == "in":
                 arg = re.sub('^\s*', '', arg)
                 arg_type = re.split('\s*', arg)[0]
-                line += "\tmemcpy(%s, p%s, sizeof(%s) * %s);\n" % (jarg.name,jarg.name,arg_type,jarg.size)
+                line += "\tmemcpy(%s, p%s, sizeof(%s) * %s);\n" % (jarg.name,jarg.name,arg_type,jarg.num)
 
         return line
 
@@ -173,7 +173,7 @@ class Hwif_Generate:
             if jarg.mode == "m_axi" and jarg.direction == "out":
                 arg = re.sub('^\s*', '', arg)
                 arg_type = re.split('\s*', arg)[0]
-                line += "\tmemcpy(%s, p%s, sizeof(%s) * %s);\n" % (jarg.name,jarg.name,arg_type,jarg.size)
+                line += "\tmemcpy(%s, p%s, sizeof(%s) * %s);\n" % (jarg.name,jarg.name,arg_type,jarg.num)
 
         return line
 
