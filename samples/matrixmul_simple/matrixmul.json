@@ -15,6 +15,6 @@
     }],
     "environments": {
         "vendor": "xilinx",
-        "board": "zc702"
+        "board": "zedboard"
     }
 }
