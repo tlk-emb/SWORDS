@@ -3,14 +3,10 @@
         {"name": "main"},
         {"name": "matrixmul_soft"}],
     "hardware_tasks": [{
-        "name": "matrixmul", "mode": "s_axilite", "arguments": [
-            {"name": "a", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": "1024" },
-            {"name": "b", "mode": "s_axilite", "bundle": "bundle_b", "direction": "in", "num": "1024" },
-            {"name": "c", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "out", "num": "1024" }
-        ],
-        "bundles": [
-            {"bundle": "bundle_a", "port": "ACP" },
-            {"bundle": "bundle_b", "port": "GP0" }
+        "name": "matrixmul", "return_type": "int", "arguments": [
+            {"name": "a", "type": "array", "offset": "slave", "direction": "in", "num": "1024" },
+            {"name": "b", "type": "array", "direction": "in", "num": "1024" },
+            {"name": "c", "type": "array", "offset": "slave", "direction": "out", "num": "1024" }
         ]
     }],
     "environments": {
