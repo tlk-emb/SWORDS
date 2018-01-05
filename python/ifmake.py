@@ -34,7 +34,7 @@ def main():
     logging.debug("input config file: %s", json_file_name)
     logging.debug("output iflayer source file: %s", hw_iffile_name)
 
-    config = TasksConfig.parse_config(json_file_name)
+    config = TasksConfig.get_config(json_file_name)
     if config is None:
         return 1
 

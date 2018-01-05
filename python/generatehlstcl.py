@@ -25,7 +25,7 @@ def main():
     toolchain_path = args.toolchain_path
 
     # JSON‚©‚çİ’è‚ğ“Ç‚İ‚İ
-    config = TasksConfig.parse_config(json_file_name)
+    config = TasksConfig.get_config(json_file_name)
     if config is None:
         return 1
     function_name = config.hw_funcname(config)

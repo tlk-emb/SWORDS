@@ -59,7 +59,7 @@ class generateVivadoTcl:
         self.toolchain_path = toolchain_path
         self.lib_path = (toolchain_path+"utils/lib").replace("\\","/")
 
-        config = TasksConfig.parse_config(json_file_name)
+        config = TasksConfig.get_config(json_file_name)
         if config is None:
             return 1
 

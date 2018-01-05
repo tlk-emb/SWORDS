@@ -37,7 +37,7 @@ def main():
     logging.debug("output renamed C source file: %s", hwif_file_name)
 
     # JSONから設定を読み込み
-    config = TasksConfig.parse_config(json_file_name)
+    config = TasksConfig.get_config(json_file_name)
     if config is None:
         return 1
 
