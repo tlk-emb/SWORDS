@@ -86,11 +86,12 @@ class SoftwareTask(Task):
         return SoftwareTask(node["name"])
 
 class HardwareTask(Task):
-    def __init__(self, name, return_type, arguments, bundles):
+    def __init__(self, name, return_type, arguments):
         super(HardwareTask, self).__init__(name)
+        self.mode = ""
         self.return_type = return_type
         self.arguments = arguments
-        self.bundles = bundles
+        self.bundles = []
 
     @staticmethod
     def parse_config(node):
@@ -98,19 +99,17 @@ class HardwareTask(Task):
         return_type = node["return_type"]
         arguments = [HardwareTaskArgument.parse_config(n)
                      for n in node["arguments"]]
-        bundles = [HardwareTaskBundle.parse_config(n)
-                     for n in node["bundles"]]
 
-        return HardwareTask(name, return_type, arguments, bundles)
+        return HardwareTask(name, return_type, arguments)
 
 
 class HardwareTaskArgument(object):
-    def __init__(self, name, arg_type, offset=None, bundle=None,
-            direction=None, num=None):
+    def __init__(self, name, arg_type, offset=None, direction=None, num=None):
         self.name = name
+        self.mode = ""
         self.arg_type = arg_type
         self.offset = offset
-        self.bundle = bundle
+        self.bundle = ""
         self.direction = direction
         self.num = num
 
@@ -119,10 +118,9 @@ class HardwareTaskArgument(object):
         name = node["name"]
         arg_type = node["type"]
         offset = node.get("offset")
-        bundle = node.get("bundle")
         direction = node.get("direction")
         num = node["num"]
-        return HardwareTaskArgument(name, arg_type, offset, bundle, direction, num)
+        return HardwareTaskArgument(name, arg_type, offset, direction, num)
 
 
 class HardwareTaskBundle(object):
@@ -170,6 +168,7 @@ class TasksConfig(object):
     def get_config(filename):
         config = TasksConfig.parse_config(filename)
         config_connection_selected = TasksConfig.select_connection(config)
+        return config_connection_selected
     
     @staticmethod
     def parse_config(filename):
@@ -200,5 +199,15 @@ class TasksConfig(object):
     #通信プロトコル・ポートの選択を行う
     @staticmethod
     def select_connection(config):
+        hwtask_name = "matrixmul"
+        config.hardware_tasks[hwtask_name].mode = "s_axilite"
+        config.hardware_tasks[hwtask_name].arguments[0].mode = "m_axi"
+        config.hardware_tasks[hwtask_name].arguments[1].mode = "s_axilite"
+        config.hardware_tasks[hwtask_name].arguments[2].mode = "m_axi"
+        config.hardware_tasks[hwtask_name].arguments[0].bundle = "bundle_a"
+        config.hardware_tasks[hwtask_name].arguments[1].bundle = "bundle_b"
+        config.hardware_tasks[hwtask_name].arguments[2].bundle = "bundle_a"
+        config.hardware_tasks[hwtask_name].bundles = [HardwareTaskBundle("bundle_a", "ACP"), HardwareTaskBundle("bundle_b", "GP0")]
+
         return config
 
