@@ -21,16 +21,13 @@ SCHEMA = {
             "type": "object",
             "properties": {
                 "name": {"type": "string"},
-                "mode": {
-                    "type": "string",
-                    "enum": ["axis", "m_axi", "s_axilite"]
-                },
+                "type": {"type": "string"},
                 "offset": {"type": "string"},
                 "bundle": {"type": "string"},
                 "direction": {"type": "string"},
                 "num": {"type": "string"}
             },
-            "required": ["name", "mode", "num"]
+            "required": ["name", "num"]
         },
         "hardware_task_bundle": {
             "type": "object",
@@ -43,20 +40,13 @@ SCHEMA = {
             "type": "object",
             "properties": {
                 "name": {"type": "string"},
-                "mode": {
-                    "type": "string",
-                    "enum": ["s_axilite"]
-                },
+                "return_type": {"type": "string"},
                 "arguments": {
                     "type": "array",
                     "items": {"$ref": "#/definitions/hardware_task_argument"}
-                },
-                "bundles": {
-                    "type": "array",
-                    "items": {"$ref": "#/definitions/hardware_task_bundle"}
                 }
             },
-            "required": ["name", "arguments"]
+            "required": ["name", "return_type", "arguments"]
         },
         "environments": {
             "type": "object",
@@ -96,29 +86,29 @@ class SoftwareTask(Task):
         return SoftwareTask(node["name"])
 
 class HardwareTask(Task):
-    def __init__(self, name, mode, arguments, bundles):
+    def __init__(self, name, return_type, arguments, bundles):
         super(HardwareTask, self).__init__(name)
-        self.mode = mode
+        self.return_type = return_type
         self.arguments = arguments
         self.bundles = bundles
 
     @staticmethod
     def parse_config(node):
         name = node["name"]
-        mode = node.get("mode")
+        return_type = node["return_type"]
         arguments = [HardwareTaskArgument.parse_config(n)
                      for n in node["arguments"]]
         bundles = [HardwareTaskBundle.parse_config(n)
                      for n in node["bundles"]]
 
-        return HardwareTask(name, mode, arguments, bundles)
+        return HardwareTask(name, return_type, arguments, bundles)
 
 
 class HardwareTaskArgument(object):
-    def __init__(self, name, mode, offset=None, bundle=None,
+    def __init__(self, name, arg_type, offset=None, bundle=None,
             direction=None, num=None):
         self.name = name
-        self.mode = mode
+        self.arg_type = arg_type
         self.offset = offset
         self.bundle = bundle
         self.direction = direction
@@ -127,12 +117,12 @@ class HardwareTaskArgument(object):
     @staticmethod
     def parse_config(node):
         name = node["name"]
-        mode = node["mode"]
+        arg_type = node["type"]
         offset = node.get("offset")
         bundle = node.get("bundle")
         direction = node.get("direction")
         num = node["num"]
-        return HardwareTaskArgument(name, mode, offset, bundle, direction, num)
+        return HardwareTaskArgument(name, arg_type, offset, bundle, direction, num)
 
 
 class HardwareTaskBundle(object):
@@ -177,6 +167,11 @@ class TasksConfig(object):
 
 
     @staticmethod
+    def get_config(filename):
+        config = TasksConfig.parse_config(filename)
+        config_connection_selected = TasksConfig.select_connection(config)
+    
+    @staticmethod
     def parse_config(filename):
         with open(filename) as f:
             root = json.load(f)
@@ -201,3 +196,9 @@ class TasksConfig(object):
         environments.update(root["environments"])
 
         return TasksConfig(hw_tasks, sw_tasks, environments)
+
+    #通信プロトコル・ポートの選択を行う
+    @staticmethod
+    def select_connection(config):
+        return config
+

@@ -57,7 +57,7 @@ def main():
     logging.debug("output C software source file: %s", software_file)
 
     # JSONから設定を読み込み
-    config = TasksConfig.parse_config(conf_file)
+    config = TasksConfig.get_config(conf_file)
     if config is None:
         return 1
     # clang で関数の情報を収集
