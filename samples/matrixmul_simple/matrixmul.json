@@ -4,9 +4,9 @@
         {"name": "matrixmul_soft"}],
     "hardware_tasks": [{
         "name": "matrixmul", "return_type": "int", "arguments": [
-            {"name": "a", "type": "array", "offset": "slave", "direction": "in", "num": "1024" },
-            {"name": "b", "type": "array", "direction": "in", "num": "1024" },
-            {"name": "c", "type": "array", "offset": "slave", "direction": "out", "num": "1024" }
+            {"name": "a", "type": "array", "direction": "in", "num": 1024 },
+            {"name": "b", "type": "array", "direction": "in", "num": 1024 },
+            {"name": "c", "type": "array", "direction": "out", "num": 1024 }
         ]
     }],
     "environments": {
