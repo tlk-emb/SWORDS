@@ -96,6 +96,7 @@ class generateIF:
                     self.parm_slave_bundles_noduplication.append(self.parm_bundles[i])
 
         (self.define_line, self.hwfunc_decl) = self._analyze_hwfunc_decl()
+        print (self.define_line, self.hwfunc_decl)
 
         if self.hwfunc_decl.startswith("void"):
             self.return_type = "void"
@@ -125,12 +126,14 @@ class generateIF:
 
             if (re.match(p_func_decl_int,line) or re.match(p_func_decl_void,line)):
                 func_decl_lines = []
-                while "{" not in line:
+                while True:
                     line = hw_source[l]
                     line = re.sub('^\s*', '', line)
                     line = re.sub('$\s*', '', line)
                     func_decl_lines.append(line)
                     l += 1
+                    if "{" in line:
+                        break
                 func_decl_line = ""
                 for line in func_decl_lines:
                     func_decl_line += line
