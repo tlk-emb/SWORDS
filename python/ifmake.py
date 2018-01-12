@@ -96,7 +96,6 @@ class generateIF:
                     self.parm_slave_bundles_noduplication.append(self.parm_bundles[i])
 
         (self.define_line, self.hwfunc_decl) = self._analyze_hwfunc_decl()
-        print (self.define_line, self.hwfunc_decl)
 
         if self.hwfunc_decl.startswith("void"):
             self.return_type = "void"
