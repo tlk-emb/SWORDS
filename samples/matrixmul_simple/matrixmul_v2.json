@@ -3,15 +3,16 @@
         {"name": "main"},
         {"name": "matrixmul_soft"}],
     "hardware_tasks": [{
-        "name": "matrixmul", "mode": "s_axilite", "arguments": [
-            {"name": "a", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": "1024" },
-            {"name": "b", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": "1024" },
-            {"name": "c", "mode": "m_axi", "bundle": "bundle_c", "offset": "slave", "direction": "out", "num": "1024" }
+        "name": "matrixmul", "return_type": "int", "mode": "s_axilite", "arguments": [
+            {"name": "a", "type": "array", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": 1024 },
+            {"name": "b", "type": "array", "mode": "m_axi", "bundle": "bundle_a", "offset": "slave", "direction": "in", "num": 1024 },
+            {"name": "c", "type": "array", "mode": "m_axi", "bundle": "bundle_c", "offset": "slave", "direction": "out", "num": 1024 }
         ],
         "bundles": [
             {"bundle": "bundle_a", "port": "ACP" },
             {"bundle": "bundle_c", "port": "GP0" }
-        ]
+        ],
+        "auto_interface_select": false
     }],
     "environments": {
         "board": "zedboard"
