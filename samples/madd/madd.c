@@ -1,3 +1,4 @@
+#include "xtime_l.h"
 #define P 64
 
 int mul(int x[P], int y[P], int z[P]){
