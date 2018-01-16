@@ -61,14 +61,15 @@ class generateIF:
         self.json_bundles = task.bundles
 
         #self.vendorname = config.vendorname(config)
-
         self.parm_decls = []
         for args in self.json_args:
             self.parm_decls.append(str(args.name))
 
         self.parm_interfaces = []
+        self.parm_interface_bundles = []
         for args in self.json_args:
             self.parm_interfaces.append(str(args.mode))
+            self.parm_interface_bundles.append(str(args.bundle))
 
         self.parm_directions = []
         for args in self.json_args:
@@ -90,10 +91,10 @@ class generateIF:
         self.parm_slave_bundles_noduplication = []
         for i in range(0,len(self.parm_decls)):
             if self.parm_interfaces[i] == "s_axilite":
-                if self.parm_bundles[i] in self.parm_slave_bundles_noduplication:
+                if self.parm_interface_bundles[i] in self.parm_slave_bundles_noduplication:
                     pass
                 else:
-                    self.parm_slave_bundles_noduplication.append(self.parm_bundles[i])
+                    self.parm_slave_bundles_noduplication.append(self.parm_interface_bundles[i])
 
         (self.define_line, self.hwfunc_decl) = self._analyze_hwfunc_decl()
 
