@@ -9,11 +9,14 @@ SET projectname=%~1
 
 SET toolchainpath=%~dp0
 
+SET arm_reset_tcl=%toolchainpath%arm_reset.tcl
+SET arm_reconnect_tcl=%toolchainpath%arm_reconnect.tcl
 if not {%~1} == {} (
     
   cd %projectname%
-
-  rem %sdkpath%\xsdk.bat -batch -source %projectname%_config_sdk.tcl
+  %sdkpath%\xmd.bat -tcl %arm_reset_tcl:\=/%
+  %sdkpath%\xmd.bat -tcl %arm_reconnect_tcl:\=/%
+  %sdkpath%\xsdk.bat -batch -source %projectname%_config_sdk.tcl
   %sdkpath%\xsdk.bat -batch -source %projectname%_execute_sdk.tcl
 
   cd ..

@@ -1,0 +1,2 @@
+connect arm hw
+exit
