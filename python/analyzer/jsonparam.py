@@ -235,33 +235,44 @@ class TasksConfig(object):
             ####################################################
             if hwtask.auto_interface_select == False: continue
 
-            #関数の返り値はs_axiliteでつなぐ(現在は引数と同じbundleは使用しない)
-            if hwtask.return_type is not "void":
-                hwtask.mode = "s_axilite"
-            #通信プロトコルを決定する
-            for i,argument in enumerate(hwtask.arguments):
-                if argument.num * intBytesize < 400:
-                    hwtask.arguments[i].mode = "s_axilite"
-                else:
-                    hwtask.arguments[i].mode = "m_axi"
-                    hwtask.arguments[i].offset = "slave"
+            bundle_dic = {} #key: bundle_name value: [protocol, data_byte_size]
 
-            #定まった通信プロトコルについてbundleでまとめる
-            #通信プロトコルの集合を求める
-            protocol_dic = {} #key: m_axi, s_axilite, axis value: bundle_name
-            bundle_dic = {} #key: bundle_name value: data_byte_size
-            for i,argument in enumerate(hwtask.arguments):
-                bundle_name = ""
-                if argument.mode not in protocol_dic:
-                    bundle_name = "bundle_" + chr(ord('a') + len(bundle_dic))
-                    bundle_dic[bundle_name] = argument.num * intBytesize
-                    protocol_dic[argument.mode] = bundle_name
-                else:
-                    bundle_name = protocol_dic[argument.mode]
-                    bundle_dic[bundle_name] += argument.num * intBytesize
-                hwtask.arguments[i].bundle = bundle_name
-                print(i)
-                print(bundle_name)
+            #引数の通信プロトコルおよびバンドルを決定する
+            if hwtask.use_stream:
+                #ストリームを使用する場合
+                hwtask.mode = None
+                for i in range(len(hwtask.arguments)):
+                    hwtask.arguments[i].mode = "axis"
+                    #現時点では1入力1出力のみ対応のためinとoutでbundleを決める
+                    if hwtask.arguments[i].direction == "in":
+                        hwtask.arguments[i].bundle = "bundle_in"
+                        bundle_dic["bundle_in"] = ["axis", hwtask.arguments[i].num * intBytesize]
+                    else:
+                        hwtask.arguments[i].bundle = "bundle_out"
+                        bundle_dic["bundle_out"] = ["axis", hwtask.arguments[i].num * intBytesize]
+            else:
+                #ストリームを使用しない場合
+                hwtask.mode = "s_axilite"
+                protocol_dic = {} #key: m_axi, s_axilite, value: bundle_name
+                for i,argument in enumerate(hwtask.arguments):
+                    if argument.num * intBytesize < 400:
+                        hwtask.arguments[i].mode = "s_axilite"
+                    else:
+                        hwtask.arguments[i].mode = "m_axi"
+                        hwtask.arguments[i].offset = "slave"
+
+                #定まった通信プロトコルについてbundleでまとめる
+                #通信プロトコルの集合を求める
+                for i,argument in enumerate(hwtask.arguments):
+                    bundle_name = ""
+                    if argument.mode not in protocol_dic:
+                        bundle_name = "bundle_" + chr(ord('a') + len(bundle_dic))
+                        bundle_dic[bundle_name] = [argument.mode, argument.num * intBytesize]
+                        protocol_dic[argument.mode] = bundle_name
+                    else:
+                        bundle_name = protocol_dic[argument.mode]
+                        bundle_dic[bundle_name][1] += argument.num * intBytesize
+                    hwtask.arguments[i].bundle = bundle_name
 
             #[bundle_name, data_byte_size]のリスト
             GP_port_list = []
@@ -269,9 +280,9 @@ class TasksConfig(object):
             HP_port_list = []
             #各バンドルの通信データ量から使用する通信ポートを決定する
             for bundle_name in bundle_dic.keys():
-                data_byte_size = bundle_dic[bundle_name]
+                data_byte_size = bundle_dic[bundle_name][1]
                 port_name = ""
-                if data_byte_size < 64:
+                if data_byte_size < 64 or bundle_dic[bundle_name][0] == "s_axilite":
                     port_name = "GP"
                     GP_port_list.append([bundle_name, data_byte_size])
                 elif data_byte_size < 64 * 1000:
@@ -280,9 +291,10 @@ class TasksConfig(object):
                 else:
                     port_name = "HP"
                     HP_port_list.append([bundle_name, data_byte_size])
-                
+                print(bundle_name, port_name)
             #決定した通信ポートをconfigに設定する
-            hwtask.bundles.append(HardwareTaskBundle(ACP_port_list[0][0], "ACP"))
+            for i, ACP_port in enumerate(ACP_port_list):
+                hwtask.bundles.append(HardwareTaskBundle(ACP_port[0], "ACP"))
             for i, GP_port in enumerate(GP_port_list):
                 hwtask.bundles.append(HardwareTaskBundle(GP_port[0], "GP" + str(i)))
             for i, HP_port in enumerate(HP_port_list):
