@@ -1,4 +1,6 @@
+{%- if return_mode != None: %}
 #pragma HLS INTERFACE s_axilite port=return
+{%- endif %}
 {%- for (n,m,o,b) in zip(name,mode,offset,bundle): %}
 {%- if (o==None) and (b==None): %}
 #pragma HLS INTERFACE {{ m }} port={{ n }}

@@ -54,6 +54,7 @@ class Hwif_Generate:
         self.hw_file_name = hw_file_name
         self.toolchain_path = toolchain_path
         self.func_name = config.hw_funcname(config)
+        self.func_return_mode = config.hardware_tasks[self.func_name].mode
 
         task = config.hardware_tasks[self.func_name]
         self.json_args = task.arguments
@@ -80,12 +81,14 @@ class Hwif_Generate:
 
             if (re.match(p_func_decl_int,line) or re.match(p_func_decl_void,line)):
                 func_decl_lines = []
-                while "{" not in line:
+                while True:#"{" not in line:
                     line = hw_source[l]
                     line = re.sub('^\s*', '', line)
                     line = re.sub('$\s*', '', line)
                     func_decl_lines.append(line)
                     l += 1
+                    if "{" in line:
+                        break
                 func_decl_line = ""
                 for line in func_decl_lines:
                     func_decl_line += line
@@ -141,8 +144,8 @@ class Hwif_Generate:
             mode.append(jarg.mode)
             offset.append(jarg.offset)
             bundle.append(jarg.bundle)
-
-        data = {'name': name, 'mode': mode, 'offset': offset, 'bundle': bundle}
+        
+        data = {'return_mode': self.func_return_mode, 'name': name, 'mode': mode, 'offset': offset, 'bundle': bundle}
         return template.render(data)+'\n'
 
     def _x_add_ver_in(self, args):
