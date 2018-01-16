@@ -5,6 +5,7 @@
 samples/matrixmul_simple/*
 !samples/matrixmul_simple/matrixmul.c
 !samples/matrixmul_simple/matrixmul.json
+!samples/matrixmul_simple/matrixmul_interface_specify.json
 samples/ambmcm/*
 !samples/ambmcm/mm_ambmcmp_p25_0.c
 !samples/ambmcm/mm_ambmcmp_p25_0.json
@@ -14,3 +15,4 @@ samples/asbscs/*
 samples/stream_test/*
 !samples/stream_test/arrayadd.c
 !samples/stream_test/arrayadd.json
+!samples/stream_test/arrayadd_interface_specify.json

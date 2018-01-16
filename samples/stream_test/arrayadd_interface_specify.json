@@ -1,0 +1,20 @@
+{
+    "software_tasks": [
+        {"name": "main"},
+        {"name": "arrayadd_soft"}],
+    "hardware_tasks": [{
+        "name": "arrayadd", "return_type": "void", "arguments": [
+            {"name": "a", "mode": "axis", "bundle": "bundle_a", "direction": "in", "type": "array", "num": 50},
+            {"name": "b", "mode": "axis", "bundle": "bundle_b", "direction": "out", "type": "array", "num": 50}
+        ],
+        "bundles": [
+            {"bundle": "bundle_a", "port": "HP0" },
+            {"bundle": "bundle_b", "port": "HP0" }
+        ],
+        "auto_interface_select": false
+    }],
+    "environments": {
+        "vendor": "xilinx",
+        "board": "zedboard"
+    }
+}

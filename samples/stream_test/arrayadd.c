@@ -1,6 +1,7 @@
+#include "xtime_l.h"
 #define P 50
 
-void arrayadd_soft(int a[P], int b{P}){
+void arrayadd_soft(int a[P], int b[P]){
 	int i;
 	for(i = 0; i < P; i++){
 		b[i] = a[i] + 5;
@@ -19,57 +20,50 @@ void arrayadd(int a[P], int b[P]){
 int main()
 {
 
-	int tmp1,tmp2,tmp3,tmp4,tmp5,tmp6;
+	XTime tStart1, tEnd1;
+    XTime tStart2, tEnd2;
+    XTime tStart3, tEnd3;
 
     init_platform();
 
     //Xil_DCacheDisable();
 
-    printf("Hello! matrixmul\n\r");
+    printf("Hello! stream_test\n\r");
     int i,j;
 
-    target_timer_initialize();
-
-    srand(target_timer_get_current());
+    XTime_GetTime(&tStart1);
+    srand(tStart1);
 
     int a[P], b[P], c[P], d[P];
 
-    for (i = 0;i < P;i++){
-    	a[i] = i;
+    for (i = 0;i < P; i++){
+    	a[i] = (int)rand() % 256;
     }
 
-    target_timer_initialize();
-
-    tmp1 = target_timer_get_current();
-
+    XTime_GetTime(&tStart1);
     arrayadd_interrupt(a,b);
+    XTime_GetTime(&tEnd1);
 
-    tmp2 = target_timer_get_current();
-
-    target_timer_initialize();
-
-    tmp3 = target_timer_get_current();
-
-    arrayadd(a,c);
-
-    tmp4 = target_timer_get_current();
-
-    Xil_DCacheEnable();
-
-    target_timer_initialize();
-
-    tmp5 = target_timer_get_current();
-
-    arrayadd_soft(a,d);
-
-    tmp6 = target_timer_get_current();
-
+    XTime_GetTime(&tStart2);
+    arrayadd(a,c); 
+    XTime_GetTime(&tEnd2);
     
-    printf("hard interr time:%d\n",tmp2 - tmp1);
-    printf("hard poling time:%d\n",tmp4 - tmp3);
-    printf("soft time:%d\n",tmp6 - tmp5);
+    XTime_GetTime(&tStart3);
+    arrayadd_soft(a,d);
+    XTime_GetTime(&tEnd3);
 
-    printf("end matrixmul\n\r");
+    for (i = 0;i < P;i++){
+        if (b[i] != d[i] || c[i] != d[i]){
+            printf("b[%d] = %d\t",i,b[i]);
+            printf("c[%d] = %d\t",i,c[i]);
+            printf("d[%d] = %d\n",i,d[i]);
+        }
+    }
+    printf("hard interr time: %llu\n",2*(tEnd1-tStart1));
+    printf("hard poling time: %llu\n",2*(tEnd2-tStart2));
+    printf("soft time       : %llu\n",2*(tEnd3-tStart3));
+
+    printf("end stream_test\n\r");
 
     cleanup_platform();
     return 0;

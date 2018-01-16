@@ -1,0 +1,18 @@
+{
+    "software_tasks": [
+        {"name": "main"},
+        {"name": "matrixmul_soft"}],
+    "hardware_tasks": [{
+        "name": "matrixmul", "return_type": "int", "mode": "s_axilite", "arguments": [
+			{"direction": "in", "name": "a", "bundle": "bundle_a", "num": 1024, "mode": "m_axi", "offset": "slave", "type": "array"},
+			{"direction": "in", "name": "b", "bundle": "bundle_b", "num": 1024, "mode": "s_axilite", "type": "array"},
+			{"direction": "out", "name": "c", "bundle": "bundle_a", "num": 1024, "mode": "m_axi", "offset": "slave", "type": "array"}			],
+		"bundles": [
+			{"bundle": "bundle_a", "port": "ACP" },
+			{"bundle": "bundle_b", "port": "GP0" }        ],
+        "auto_interface_select": false
+    }],
+    "environments": {
+        "board": "zedboard"
+    }
+}
