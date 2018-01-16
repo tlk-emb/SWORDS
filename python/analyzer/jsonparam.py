@@ -93,12 +93,12 @@ class SoftwareTask(Task):
         return SoftwareTask(node["name"])
 
 class HardwareTask(Task):
-    def __init__(self, mode, name, auto_interface_select, return_type, arguments, use_stream):
+    def __init__(self, mode, name, auto_interface_select, return_type, arguments, bundles, use_stream):
         super(HardwareTask, self).__init__(name)
         self.mode = mode
         self.return_type = return_type
         self.arguments = arguments
-        self.bundles = []
+        self.bundles = bundles
         self.use_stream = use_stream
         self.auto_interface_select = auto_interface_select
 
@@ -125,14 +125,14 @@ class HardwareTask(Task):
         if node.get("auto_interface_select") is not None:
             auto_interface_select = node["auto_interface_select"]
 
-        return HardwareTask(mode, name, auto_interface_select, return_type, arguments, use_stream)
+        return HardwareTask(mode, name, auto_interface_select, return_type, arguments, bundles, use_stream)
 class HardwareTaskArgument(object):
-    def __init__(self, name, arg_type, offset=None, direction=None, num=None):
+    def __init__(self, name, arg_type, bundle, mode, offset=None, direction=None, num=None):
         self.name = name
-        self.mode = ""
+        self.mode = mode
         self.arg_type = arg_type
         self.offset = offset
-        self.bundle = ""
+        self.bundle = bundle
         self.direction = direction
         self.num = num
 
@@ -143,7 +143,11 @@ class HardwareTaskArgument(object):
         offset = node.get("offset")
         direction = node.get("direction")
         num = node["num"]
-        return HardwareTaskArgument(name, arg_type, offset, direction, num)
+        bundle = ""
+        if node.get("bundle") is not None: bundle = node["bundle"]
+        mode = ""
+        if node.get("mode") is not None: mode = node["mode"]
+        return HardwareTaskArgument(name, arg_type, bundle, mode, offset, direction, num)
 
 
 class HardwareTaskBundle(object):
@@ -230,15 +234,9 @@ class TasksConfig(object):
             ####################################################
             if config.hardware_tasks[hwtask_name].auto_interface_select == False: continue
 
+            #関数の返り値はs_axiliteでつなぐ(現在は引数と同じbundleは使用しない)
             if config.hardware_tasks[hwtask_name].return_type is not "void":
                 config.hardware_tasks[hwtask_name].mode = "s_axilite"
-            # config.hardware_tasks[hwtask_name].arguments[0].mode = "m_axi"
-            # config.hardware_tasks[hwtask_name].arguments[1].mode = "s_axilite"
-            # config.hardware_tasks[hwtask_name].arguments[2].mode = "m_axi"
-            # config.hardware_tasks[hwtask_name].arguments[0].bundle = "bundle_a"
-            # config.hardware_tasks[hwtask_name].arguments[1].bundle = "bundle_b"
-            # config.hardware_tasks[hwtask_name].arguments[2].bundle = "bundle_a"
-            # config.hardware_tasks[hwtask_name].bundles = [HardwareTaskBundle("bundle_a", "ACP"), HardwareTaskBundle("bundle_b", "GP0")]
 
             #通信プロトコルを決定する
             for i,argument in enumerate(config.hardware_tasks[hwtask_name].arguments):
@@ -265,20 +263,13 @@ class TasksConfig(object):
                 print(i)
                 print(bundle_name)
 
-            #各バンドルの通信ポートをデータサイズが大きい順にソートする
-            bundle_dic_sorted = sorted(bundle_dic.items(), key=lambda x: -x[1])
-            #各ポートの使用可能最大数
-            max_GP = 2
-            max_ACP = 1
-            max_HP = 4
             #[bundle_name, data_byte_size]のリスト
             GP_port_list = []
             ACP_port_list = []
             HP_port_list = []
-            #各バンドルの通信データ量から使用する通信ポートを仮に決定する,各ポートの使用可能最大数は無視
+            #各バンドルの通信データ量から使用する通信ポートを決定する
             for bundle_name in bundle_dic.keys():
                 data_byte_size = bundle_dic[bundle_name]
-                print(data_byte_size)
                 port_name = ""
                 if data_byte_size < 64:
                     port_name = "GP"
@@ -289,51 +280,6 @@ class TasksConfig(object):
                 else:
                     port_name = "HP"
                     HP_port_list.append([bundle_name, data_byte_size])
-            #各通信ポートについて使用可能最大数を超えているものについてデータサイズが一番小さなものを別の通信ポートに変更する
-            while True:
-                #ACPポート数超過
-                if len(ACP_port_list) > max_ACP:
-                    change_port = min(ACP_port_list, key=lambda x: x[1])
-                    change_port_bundle_name = change_port[0]
-                    change_port_data_byte_size = change_port[1]
-                    if change_port_data_byte_size < 64 and len(GP_port_list) + 1 < max_GP:
-                        new_port = "GP" + str(len(GP_port_list))
-                        ACP_port_list.remove(change_port)
-                        GP_port_list.append([change_port_bundle_name, change_port_data_byte_size])
-                    elif len(HP_port_list) + 1 < max_HP:
-                        new_port = "HP" + str(len(HP_port_list))
-                        ACP_port_list.remove(change_port)
-                        HP_port_list.append([change_port_bundle_name, change_port_data_byte_size])
-                #GPポート超過
-                if len(GP_port_list) > max_GP:
-                    change_port = min(GP_port_list, key=lambda x: x[1])
-                    change_port_bundle_name = change_port[0]
-                    change_port_data_byte_size = change_port[1]
-                    if change_port_data_byte_size < 64 * 10000 and len(ACP_port_list) + 1 < max_ACP:
-                        new_port = "ACP"
-                        GP_port_list.remove(change_port)
-                        ACP_port_list.append([change_port_bundle_name, change_port_data_byte_size])
-                    elif len(HP_port_list) + 1 < max_HP:
-                        new_port = "HP" + str(len(HP_port_list))
-                        GP_port_list.remove(change_port)
-                        HP_port_list.append([change_port_bundle_name, change_port_data_byte_size])
-                #HPポート超過
-                if len(HP_port_list) > max_HP:
-                    change_port = min(HP_port_list, key=lambda x: x[1])
-                    change_port_bundle_name = change_port[0]
-                    change_port_data_byte_size = change_port[1]
-                    #HPポートが選ばれているということは大容量なのでACP優先
-                    if len(ACP_port_list) + 1 < max_ACP:
-                        new_port = "ACP"
-                        HP_port_list.remove(change_port)
-                        ACP_port_list.append([change_port_bundle_name, change_port_data_byte_size])
-                    elif len(GP_port_list) + 1 < max_GP:
-                        new_port = "GP" + str(len(GP_port_list))
-                        HP_port_list.remove(change_port)
-                        GP_port_list.append([change_port_bundle_name, change_port_data_byte_size])
-                
-                #すべての通信ポートが使用可能最大数以内におさまっていれば終了
-                if (len(GP_port_list) <= max_GP and len(ACP_port_list) <= max_ACP and len(HP_port_list) <= max_HP): break
                 
             #決定した通信ポートをconfigに設定する
             config.hardware_tasks[hwtask_name].bundles.append(HardwareTaskBundle(ACP_port_list[0][0], "ACP"))
