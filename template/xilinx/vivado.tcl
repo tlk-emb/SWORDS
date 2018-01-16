@@ -107,12 +107,22 @@ endgroup
 		connect_bd_net [get_bd_pins {{ tlast_gen_name }}/resetn] [get_bd_pins {{ funcname }}_0/ap_rst_n]
 		{#tlastのデータ幅を設定#}
 		set_property -dict [list CONFIG.TDATA_WIDTH {{ '{' }}{{ data_width }}{{ '}' }}] [get_bd_cells {{ tlast_gen_name }}]
-		{#tlast_genのtlasをたてるまでのパケット数(出力の配列数)を定数値で設定#}
+		{#tlast_genのtlastをたてるまでのパケット数(出力の配列数)を定数値で設定#}
 		{#packet_lenは現在は50で固定#}
 		{% set packet_length = 50 %}
 		create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_{{ loop.index0 }}
 		set_property -dict [list CONFIG.CONST_WIDTH {9} CONFIG.CONST_VAL {{ '{' }}{{ packet_length }}{{ '}' }}] [get_bd_cells xlconstant_{{ loop.index0 }}]
 		connect_bd_net [get_bd_pins {{ tlast_gen_name }}/pkt_length] [get_bd_pins xlconstant_{{ loop.index0 }}/dout]
+		
+		{#ACPポートを使用する場合はinclude_segment#}
+		{% if axis_bundle[1] == "ACP" and axis_bundle[2] == "in" %}
+			include_bd_addr_seg [get_bd_addr_segs -excluded axi_dma/Data_MM2S/SEG_processing_system7_0_ACP_IOP]
+			include_bd_addr_seg [get_bd_addr_segs -excluded axi_dma/Data_MM2S/SEG_processing_system7_0_ACP_M_AXI_GP0]
+		{% endif %}
+		{% if axis_bundle[1] == "ACP" and axis_bundle[2] == "out" %}
+			include_bd_addr_seg [get_bd_addr_segs -excluded axi_dma/Data_S2MM/SEG_processing_system7_0_ACP_IOP]
+			include_bd_addr_seg [get_bd_addr_segs -excluded axi_dma/Data_S2MM/SEG_processing_system7_0_ACP_M_AXI_GP0]
+		{% endif %}
 	{% endfor %}
 	{#HWコアのap_startに定数1設定#}
 	startgroup
