@@ -126,12 +126,14 @@ class generateIF:
 
             if (re.match(p_func_decl_int,line) or re.match(p_func_decl_void,line)):
                 func_decl_lines = []
-                while "{" not in line:
+                while True:#"{" not in line:
                     line = hw_source[l]
                     line = re.sub('^\s*', '', line)
                     line = re.sub('$\s*', '', line)
                     func_decl_lines.append(line)
                     l += 1
+                    if "{" in line:
+                        break
                 func_decl_line = ""
                 for line in func_decl_lines:
                     func_decl_line += line
