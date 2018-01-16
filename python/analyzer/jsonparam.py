@@ -229,28 +229,28 @@ class TasksConfig(object):
         intBytesize = 32/8
         #各HWタスクについて
         for hwtask_name in config.hardware_tasks.keys():
+            hwtask = config.hardware_tasks[hwtask_name]
             ####################################################
             ##### インタフェースが手動指定の場合はスキップ #####
             ####################################################
-            if config.hardware_tasks[hwtask_name].auto_interface_select == False: continue
+            if hwtask.auto_interface_select == False: continue
 
             #関数の返り値はs_axiliteでつなぐ(現在は引数と同じbundleは使用しない)
-            if config.hardware_tasks[hwtask_name].return_type is not "void":
-                config.hardware_tasks[hwtask_name].mode = "s_axilite"
-
+            if hwtask.return_type is not "void":
+                hwtask.mode = "s_axilite"
             #通信プロトコルを決定する
-            for i,argument in enumerate(config.hardware_tasks[hwtask_name].arguments):
+            for i,argument in enumerate(hwtask.arguments):
                 if argument.num * intBytesize < 400:
-                    config.hardware_tasks[hwtask_name].arguments[i].mode = "s_axilite"
+                    hwtask.arguments[i].mode = "s_axilite"
                 else:
-                    config.hardware_tasks[hwtask_name].arguments[i].mode = "m_axi"
-                    config.hardware_tasks[hwtask_name].arguments[i].offset = "slave"
+                    hwtask.arguments[i].mode = "m_axi"
+                    hwtask.arguments[i].offset = "slave"
 
             #定まった通信プロトコルについてbundleでまとめる
             #通信プロトコルの集合を求める
             protocol_dic = {} #key: m_axi, s_axilite, axis value: bundle_name
             bundle_dic = {} #key: bundle_name value: data_byte_size
-            for i,argument in enumerate(config.hardware_tasks[hwtask_name].arguments):
+            for i,argument in enumerate(hwtask.arguments):
                 bundle_name = ""
                 if argument.mode not in protocol_dic:
                     bundle_name = "bundle_" + chr(ord('a') + len(bundle_dic))
@@ -259,7 +259,7 @@ class TasksConfig(object):
                 else:
                     bundle_name = protocol_dic[argument.mode]
                     bundle_dic[bundle_name] += argument.num * intBytesize
-                config.hardware_tasks[hwtask_name].arguments[i].bundle = bundle_name
+                hwtask.arguments[i].bundle = bundle_name
                 print(i)
                 print(bundle_name)
 
@@ -282,11 +282,11 @@ class TasksConfig(object):
                     HP_port_list.append([bundle_name, data_byte_size])
                 
             #決定した通信ポートをconfigに設定する
-            config.hardware_tasks[hwtask_name].bundles.append(HardwareTaskBundle(ACP_port_list[0][0], "ACP"))
+            hwtask.bundles.append(HardwareTaskBundle(ACP_port_list[0][0], "ACP"))
             for i, GP_port in enumerate(GP_port_list):
-                config.hardware_tasks[hwtask_name].bundles.append(HardwareTaskBundle(GP_port[0], "GP" + str(i)))
+                hwtask.bundles.append(HardwareTaskBundle(GP_port[0], "GP" + str(i)))
             for i, HP_port in enumerate(HP_port_list):
-                config.hardware_tasks[hwtask_name].bundles.append(HardwareTaskBundle(HP_port[0], "HP" + str(i)))
+                hwtask.bundles.append(HardwareTaskBundle(HP_port[0], "HP" + str(i)))
 
         return config
 
